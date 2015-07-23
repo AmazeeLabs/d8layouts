@@ -1,0 +1,7 @@
+name: cool_theme
+type: theme
+description: My Awesome Module
+package: Other
+core: 8.x
+
+base theme: bartik

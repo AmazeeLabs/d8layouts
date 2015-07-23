@@ -1,0 +1,14 @@
+{#
+/**
+ * @file
+ * Theme override to present all user data.
+ *
+ * @see template_preprocess_user()
+ */
+#}
+<article{{ attributes.addClass('profile') }}>
+  <h3 class="username"><a href="{{ user.url }}" rel="bookmark">{{ user.username }}{{ extra }}</a></h3>
+  {% if content %}
+    {{- content -}}
+  {% endif %}
+</article>
