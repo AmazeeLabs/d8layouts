@@ -1,0 +1,19 @@
+{#
+/**
+ * @file
+ * Add some fancy footer-wrapper for the front page.
+ */
+#}
+{% extends "page.html.twig" %}
+
+{% block footer %}
+  <div class="fancy-footer">
+    <div class="fancy-footer__intro">
+      Start of the fancy front page footer.
+    </div>
+    {{ parent() }}
+    <div class="fancy-footer__outro">
+      End of the fancy front page footer.
+    </div>
+  </div>
+{% endblock footer %}

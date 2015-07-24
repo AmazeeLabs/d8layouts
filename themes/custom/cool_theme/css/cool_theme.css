@@ -1,0 +1,7 @@
+.user__first {
+    width: 50%;
+    float: left;
+}
+.user__second:after {
+    clear: both;
+}

@@ -1,0 +1,20 @@
+{#
+/**
+ * @file
+ * Theme override to present all user data.
+ *
+ * @see template_preprocess_user()
+ */
+#}
+<article{{ attributes.addClass('profile') }}>
+  <div class="user__first">
+    {{ content.field_is_mentor }}
+    {{ content.field_sprinter_initiatives }}
+    {{ content.field_country }}
+    {{ content.field_start_date }}
+    {{ content.user_picture }}
+  </div>
+  <div class="user__second">
+    {{ content.field_about_text }}
+  </div>
+</article>

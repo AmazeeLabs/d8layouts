@@ -1,0 +1,5 @@
+cool-styling:
+  version: VERSION
+  css:
+    base:
+      css/cool_theme.css: {}
