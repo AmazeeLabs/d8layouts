@@ -148,6 +148,8 @@
               <ul class="action-links">{{ action_links }}</ul>
             {% endif %}
             {{ page.content }}
+            {% block content %}
+            {% endblock content %}
           </section>
         </main>
         {% if page.sidebar_first %}

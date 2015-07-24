@@ -17,3 +17,12 @@
     </div>
   </div>
 {% endblock footer %}
+{% block content %}
+  {{ parent() }}
+  {% if page.view1 %}
+    {{ page.view1 }}
+  {% endif %}
+  {% if page.view2 %}
+    {{ page.view2 }}
+  {% endif %}
+{% endblock content %}
