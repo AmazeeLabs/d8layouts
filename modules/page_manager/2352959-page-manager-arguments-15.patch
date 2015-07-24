@@ -1,0 +1,128 @@
+diff --git a/src/Routing/PageManagerRoutes.php b/src/Routing/PageManagerRoutes.php
+index 7c746be..492d329 100644
+--- a/src/Routing/PageManagerRoutes.php
++++ b/src/Routing/PageManagerRoutes.php
+@@ -16,6 +16,8 @@ use Symfony\Component\Routing\RouteCollection;
+ 
+ /**
+  * Provides routes for page entities.
++ *
++ * @see \Drupal\page_manager\Entity\PageViewBuilder
+  */
+ class PageManagerRoutes extends RouteSubscriberBase {
+ 
+@@ -59,6 +61,7 @@ class PageManagerRoutes extends RouteSubscriberBase {
+         ],
+       ];
+ 
++      $altered_route = FALSE;
+       // Loop through all existing routes to see if this is overriding a route.
+       foreach ($collection->all() as $name => $collection_route) {
+         // Find all paths which match the path of the current display.
+@@ -72,6 +75,8 @@ class PageManagerRoutes extends RouteSubscriberBase {
+           // Merge in any route parameter definitions.
+           $parameters += $collection_route->getOption('parameters') ?: [];
+ 
++          $altered_route = TRUE;
++
+           // Update the route name this will be added to.
+           $route_name = $name;
+           // Remove the existing route.
+@@ -80,6 +85,27 @@ class PageManagerRoutes extends RouteSubscriberBase {
+         }
+       }
+ 
++      $arguments = [];
++      // Replace % placeholders with proper route slugs ("{arg}") and set
++      // parameter types.
++      if (!$altered_route) {
++        $bits = explode('/', $path);
++        $arg_counter = 0;
++        foreach ($bits as $pos => $bit) {
++          // Allowed placeholder patterns: %, %arg, %arg.type
++          if (preg_match('/%(([\w_]+)\.)?([\w_]+)/', $bit, $matches)) {
++            list($bit, $argdot, $arg, $type) = $matches;
++            $arg = $arg ?: 'arg_' . $arg_counter++;
++            $arguments[$arg] = NULL;
++            $bits[$pos] = '{' . $arg . '}';
++            $parameters[$arg] = [
++              'type' => $type,
++            ];
++          }
++        }
++        $path = implode('/', $bits);
++      }
++
+       // Construct an add a new route.
+       $route = new Route(
+         $path,
+@@ -87,7 +113,7 @@ class PageManagerRoutes extends RouteSubscriberBase {
+           '_entity_view' => 'page_manager_page',
+           'page_manager_page' => $entity_id,
+           '_title' => $entity->label(),
+-        ],
++        ] + $arguments,
+         [
+           '_entity_access' => 'page_manager_page.view',
+         ],
+diff --git a/tests/src/Unit/PageManagerRoutesTest.php b/tests/src/Unit/PageManagerRoutesTest.php
+index 1d620f3..e41d354 100644
+--- a/tests/src/Unit/PageManagerRoutesTest.php
++++ b/tests/src/Unit/PageManagerRoutesTest.php
+@@ -149,6 +149,56 @@ class PageManagerRoutesTest extends UnitTestCase {
+   }
+ 
+   /**
++   * Tests adding routes for an argument.
++   *
++   * @covers ::alterRoutes
++   */
++  public function testAlterRoutesWithArgument() {
++    // Set up a valid page.
++    $page1 = $this->getMock('Drupal\page_manager\PageInterface');
++    $page1->expects($this->once())
++      ->method('status')
++    ->willReturn(True);
++    $page1->expects($this->once())
++      ->method('getPath')
++      ->willReturn('/page1/%');
++    $page1->expects($this->once())
++      ->method('usesAdminTheme')
++      ->willReturn(True);
++    $pages['page1'] = $page1;
++
++    $this->pageStorage->expects($this->once())
++      ->method('loadMultiple')
++      ->will($this->returnValue($pages));
++
++    $collection = new RouteCollection();
++    $route_event = new RouteBuildEvent($collection);
++    $this->routeSubscriber->onAlterRoutes($route_event);
++
++    $this->assertSame(1, $collection->count());
++    $route = $collection->get('page_manager.page_view_page1');
++    $expected_defaults = [
++      '_entity_view' => 'page_manager_page',
++      'page_manager_page' => 'page1',
++      '_title' => NULL,
++      'arg_0' => NULL,
++    ];
++    $expected_requirements = [
++      '_entity_access' => 'page_manager_page.view',
++    ];
++    $expected_options = [
++      'compiler_class' => 'Symfony\Component\Routing\RouteCompiler',
++      'parameters' => [
++        'page_manager_page' => [
++          'type' => 'entity:page',
++        ],
++      ],
++      '_admin_route' => TRUE,
++    ];
++    $this->assertMatchingRoute($route, '/page1/{arg_0}', $expected_defaults, $expected_requirements, $expected_options);
++  }
++
++  /**
+    * Tests overriding an existing route.
+    *
+    * @covers ::alterRoutes
