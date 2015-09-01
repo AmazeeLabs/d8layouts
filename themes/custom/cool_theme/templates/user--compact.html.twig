@@ -10,7 +10,9 @@
   {% if user_is_mentor %}
     <span>mentor love!</span>
   {% endif %}
-  <h3 class="username"><a href="{{ user.url }}" rel="bookmark">{{ user.username }}{{ extra }}</a></h3>
+  <h3 class="username">
+    <a href="{{ user.url }}" rel="bookmark">{{ user.username }}{{ extra }}</a>
+  </h3>
   {% if content %}
     {{- content -}}
   {% endif %}

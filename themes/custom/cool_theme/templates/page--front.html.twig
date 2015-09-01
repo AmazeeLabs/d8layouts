@@ -6,6 +6,16 @@
 #}
 {% extends "page.html.twig" %}
 
+{% block content %}
+  {{ parent() }}
+  {% if page.view1 %}
+    {{ page.view1 }}
+  {% endif %}
+  {% if page.view2 %}
+    {{ page.view2 }}
+  {% endif %}
+{% endblock content %}
+
 {% block footer %}
   <div class="fancy-footer">
     <div class="fancy-footer__intro">
@@ -17,12 +27,3 @@
     </div>
   </div>
 {% endblock footer %}
-{% block content %}
-  {{ parent() }}
-  {% if page.view1 %}
-    {{ page.view1 }}
-  {% endif %}
-  {% if page.view2 %}
-    {{ page.view2 }}
-  {% endif %}
-{% endblock content %}
