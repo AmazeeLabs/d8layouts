@@ -7,6 +7,7 @@
 
 namespace Drupal\simpletest;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Variable;
 use Drupal\Core\Database\Database;
@@ -32,6 +33,9 @@ use Symfony\Component\HttpFoundation\Request;
  * The module/hook system is functional and operates on a fixed module list.
  * Additional modules needed in a test may be loaded and added to the fixed
  * module list.
+ *
+ * @deprecated in Drupal 8.0.x, will be removed before Drupal 8.2.x. Use
+ *   \Drupal\KernelTests\KernelTestBase instead.
  *
  * @see \Drupal\simpletest\KernelTestBase::$modules
  * @see \Drupal\simpletest\KernelTestBase::enableModules()
@@ -381,9 +385,7 @@ EOD;
   protected function installConfig(array $modules) {
     foreach ($modules as $module) {
       if (!$this->container->get('module_handler')->moduleExists($module)) {
-        throw new \RuntimeException(format_string("'@module' module is not enabled.", array(
-          '@module' => $module,
-        )));
+        throw new \RuntimeException("'$module' module is not enabled");
       }
       \Drupal::service('config.installer')->installDefaultConfig('module', $module);
     }
@@ -411,18 +413,13 @@ EOD;
     // behavior and non-reproducible test failures, we only allow the schema of
     // explicitly loaded/enabled modules to be installed.
     if (!$this->container->get('module_handler')->moduleExists($module)) {
-      throw new \RuntimeException(format_string("'@module' module is not enabled.", array(
-        '@module' => $module,
-      )));
+      throw new \RuntimeException("'$module' module is not enabled");
     }
     $tables = (array) $tables;
     foreach ($tables as $table) {
       $schema = drupal_get_module_schema($module, $table);
       if (empty($schema)) {
-        throw new \RuntimeException(format_string("Unknown '@table' table schema in '@module' module.", array(
-          '@module' => $module,
-          '@table' => $table,
-        )));
+        throw new \RuntimeException("Unknown '$table' table schema in '$module' module.");
       }
       $this->container->get('database')->schema()->createTable($table, $schema);
     }
@@ -578,7 +575,7 @@ EOD;
     $content = $this->container->get('renderer')->renderRoot($elements);
     drupal_process_attached($elements);
     $this->setRawContent($content);
-    $this->verbose('<pre style="white-space: pre-wrap">' . SafeMarkup::checkPlain($content));
+    $this->verbose('<pre style="white-space: pre-wrap">' . Html::escape($content));
     return $content;
   }
 

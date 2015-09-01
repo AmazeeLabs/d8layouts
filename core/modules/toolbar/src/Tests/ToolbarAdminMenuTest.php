@@ -7,7 +7,6 @@
 
 namespace Drupal\toolbar\Tests;
 
-use Drupal\Component\Serialization\Json;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Url;
@@ -120,7 +119,7 @@ class ToolbarAdminMenuTest extends WebTestBase {
     // Enable a module.
     $edit = array();
     $edit['modules[Core][taxonomy][enable]'] = TRUE;
-    $this->drupalPostForm('admin/modules', $edit, t('Save configuration'));
+    $this->drupalPostForm('admin/modules', $edit, t('Install'));
     $this->rebuildContainer();
 
     // Assert that the subtrees hash has been altered because the subtrees
@@ -341,14 +340,10 @@ class ToolbarAdminMenuTest extends WebTestBase {
     // Request a new page to refresh the drupalSettings object.
     $subtrees_hash = $this->getSubtreesHash();
 
-    $this->drupalGetJSON('toolbar/subtrees/' . $subtrees_hash);
+    $ajax_result = $this->drupalGetAjax('toolbar/subtrees/' . $subtrees_hash);
     $this->assertResponse('200');
-    $json_callback_start = substr($this->getRawContent(), 0, 39);
-    $json_callback_end = substr($this->getRawContent(), -2, 2);
-    $json = substr($this->getRawContent(), 39, strlen($this->getRawContent()) - 41);
-    $this->assertTrue($json_callback_start === '/**/Drupal.toolbar.setSubtrees.resolve(' && $json_callback_end === ');', 'Subtrees response is wrapped in callback.');
-    $subtrees = Json::decode($json);
-    $this->assertEqual(array_keys($subtrees), ['system-admin_content', 'system-admin_structure', 'system-themes_page', 'system-modules_list', 'system-admin_config', 'entity-user-collection', 'front'], 'Correct subtrees JSON returned.');
+    $this->assertEqual($ajax_result[0]['command'], 'setToolbarSubtrees', 'Subtrees response uses the correct command.');
+    $this->assertEqual(array_keys($ajax_result[0]['subtrees']), ['system-admin_content', 'system-admin_structure', 'system-themes_page', 'system-modules_list', 'system-admin_config', 'entity-user-collection', 'front'], 'Correct subtrees returned.');
   }
 
   /**
@@ -393,6 +388,7 @@ class ToolbarAdminMenuTest extends WebTestBase {
       'title[0][value]' => 'External URL',
       'link[0][uri]' => 'http://example.org',
       'menu_parent' => 'admin:system.admin',
+      'description[0][value]' => 'External URL & escaped',
     ];
     $this->drupalPostForm('admin/structure/menu/manage/admin/add', $edit, 'Save');
 
@@ -403,6 +399,8 @@ class ToolbarAdminMenuTest extends WebTestBase {
     // Assert that the new menu link is shown in the toolbar on a regular page.
     $this->drupalGet(Url::fromRoute('<front>'));
     $this->assertText('External URL');
+    // Ensure the description is escaped as expected.
+    $this->assertRaw('title="External URL &amp; escaped"');
   }
 
   /**

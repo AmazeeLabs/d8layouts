@@ -126,17 +126,6 @@ system.diff:
           type: integer
           label: 'Number of trailing lines in a diff'
 
-system.filter:
-  type: config_object
-  label: 'Filter settings'
-  mapping:
-    protocols:
-      type: sequence
-      label: 'Allowed protocols'
-      sequence:
-        type: string
-        label: 'Protocol'
-
 system.logging:
   type: config_object
   label: 'Logging settings'
@@ -352,6 +341,17 @@ block.settings.system_menu_block:*:
     depth:
       type: integer
       label: 'Maximum number of levels'
+
+block.settings.local_tasks_block:
+  type: block_settings
+  label: 'Tabs block'
+  mapping:
+    primary:
+      type: boolean
+      label: 'Whether primary tabs are shown'
+    secondary:
+      type: boolean
+      label: 'Whether secondary tabs are shown'
 
 condition.plugin.request_path:
   type: condition.plugin

@@ -76,14 +76,14 @@ class PagerTest extends WebTestBase {
     // First page.
     $this->drupalGet('pager-test/query-parameters');
     $this->assertText(t('Pager calls: 0'), 'Initial call to pager shows 0 calls.');
-    $this->assertText('pager.0.0');
+    $this->assertText('[url.query_args.pagers:0]=0.0');
     $this->assertCacheContext('url.query_args');
 
     // Go to last page, the count of pager calls need to go to 1.
     $elements = $this->xpath('//li[contains(@class, :class)]/a', array(':class' => 'pager__item--last'));
     $this->drupalGet($this->getAbsoluteUrl($elements[0]['href']));
     $this->assertText(t('Pager calls: 1'), 'First link call to pager shows 1 calls.');
-    $this->assertText('pager.0.60');
+    $this->assertText('[url.query_args.pagers:0]=0.60');
     $this->assertCacheContext('url.query_args');
 
     // Go back to first page, the count of pager calls need to go to 2.
@@ -91,8 +91,31 @@ class PagerTest extends WebTestBase {
     $this->drupalGet($this->getAbsoluteUrl($elements[0]['href']));
     $this->drupalGet($GLOBALS['base_root'] . parse_url($this->getUrl())['path'] . $elements[0]['href'], array('external' => TRUE));
     $this->assertText(t('Pager calls: 2'), 'Second link call to pager shows 2 calls.');
-    $this->assertText('pager.0.0');
+    $this->assertText('[url.query_args.pagers:0]=0.0');
     $this->assertCacheContext('url.query_args');
+  }
+
+  /**
+   * Test proper functioning of the ellipsis.
+   */
+  public function testPagerEllipsis() {
+    // Insert 100 extra log messages to get 9 pages.
+    $logger = $this->container->get('logger.factory')->get('pager_test');
+    for ($i = 0; $i < 100; $i++) {
+      $logger->debug($this->randomString());
+    }
+    $this->drupalGet('admin/reports/dblog');
+    $elements = $this->cssSelect(".pager__item--ellipsis:contains('…')");
+    $this->assertEqual(count($elements), 0, 'No ellipsis has been set.');
+
+    // Insert an extra 50 log messages to get 10 pages.
+    $logger = $this->container->get('logger.factory')->get('pager_test');
+    for ($i = 0; $i < 50; $i++) {
+      $logger->debug($this->randomString());
+    }
+    $this->drupalGet('admin/reports/dblog');
+    $elements = $this->cssSelect(".pager__item--ellipsis:contains('…')");
+    $this->assertEqual(count($elements), 1, 'Found the ellipsis.');
   }
 
   /**

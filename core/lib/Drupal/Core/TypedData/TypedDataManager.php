@@ -8,7 +8,6 @@
 namespace Drupal\Core\TypedData;
 
 use Drupal\Component\Plugin\Exception\PluginException;
-use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\DependencyInjection\ClassResolverInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
@@ -93,13 +92,15 @@ class TypedDataManager extends DefaultPluginManager {
    *
    * @return \Drupal\Core\TypedData\TypedDataInterface
    *   The instantiated typed data object.
+   *
+   * @see \Drupal\Core\TypedData\TypedDataManager::create()
    */
   public function createInstance($data_type, array $configuration = array()) {
     $data_definition = $configuration['data_definition'];
     $type_definition = $this->getDefinition($data_type);
 
     if (!isset($type_definition)) {
-      throw new \InvalidArgumentException(format_string('Invalid data type %plugin_id has been given.', array('%plugin_id' => $data_type)));
+      throw new \InvalidArgumentException("Invalid data type '$data_type' has been given");
     }
 
     // Allow per-data definition overrides of the used classes, i.e. take over
@@ -169,17 +170,19 @@ class TypedDataManager extends DefaultPluginManager {
    * @endcode
    *
    * @param string $data_type
-   *   The data type, for which a data definition should be created.
+   *   The data type plugin ID, for which a data definition object should be
+   *   created.
    *
    * @return \Drupal\Core\TypedData\DataDefinitionInterface
-   *   A data definition for the given data type.
+   *   A data definition object for the given data type. The class of this
+   *   object is provided by the definition_class in the plugin annotation.
    *
    * @see \Drupal\Core\TypedData\TypedDataManager::createListDataDefinition()
    */
   public function createDataDefinition($data_type) {
     $type_definition = $this->getDefinition($data_type);
     if (!isset($type_definition)) {
-      throw new \InvalidArgumentException(format_string('Invalid data type %plugin_id has been given.', array('%plugin_id' => $data_type)));
+      throw new \InvalidArgumentException("Invalid data type '$data_type' has been given");
     }
     $class = $type_definition['definition_class'];
     return $class::createFromDataType($data_type);
@@ -199,7 +202,7 @@ class TypedDataManager extends DefaultPluginManager {
   public function createListDataDefinition($item_type) {
     $type_definition = $this->getDefinition($item_type);
     if (!isset($type_definition)) {
-      throw new \InvalidArgumentException(format_string('Invalid data type %plugin_id has been given.', array('%plugin_id' => $item_type)));
+      throw new \InvalidArgumentException("Invalid data type '$item_type' has been given");
     }
     $class = $type_definition['list_definition_class'];
     return $class::createFromItemType($item_type);
@@ -278,7 +281,7 @@ class TypedDataManager extends DefaultPluginManager {
     if ($settings = $root_definition->getSettings()) {
       // Hash the settings into a string. crc32 is the fastest way to hash
       // something for non-cryptographic purposes.
-      $parts[] = crc32(serialize($settings));
+      $parts[] = hash('crc32b', serialize($settings));
     }
     // Property path for the requested data object. When creating a list item,
     // use 0 in the key as all items look the same.
@@ -298,7 +301,7 @@ class TypedDataManager extends DefaultPluginManager {
         throw new \InvalidArgumentException("The passed object has to either implement the ComplexDataInterface or the ListInterface.");
       }
       if (!$definition) {
-        throw new \InvalidArgumentException('Property ' . SafeMarkup::checkPlain($property_name) . ' is unknown.');
+        throw new \InvalidArgumentException("Property $property_name is unknown.");
       }
       // Create the prototype without any value, but with initial parenting
       // so that constructors can set up the objects correclty.

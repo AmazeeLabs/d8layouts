@@ -283,43 +283,10 @@ function language_get_default_langcode($entity_type, $bundle) {
 }
 
 /**
- * Implements hook_language_types_info().
- *
- * Defines the three core language types:
- * - Interface language is the only configurable language type in core. It is
- *   used by t() as the default language if none is specified.
- * - Content language is by default non-configurable and inherits the interface
- *   language negotiated value. It is used by the Field API to determine the
- *   display language for fields if no explicit value is specified.
- * - URL language is by default non-configurable and is determined through the
- *   URL language negotiation method or the URL fallback language negotiation
- *   method if no language can be detected. It is used by l() as the default
- *   language if none is specified.
- */
-function language_language_types_info() {
-  return array(
-    LanguageInterface::TYPE_INTERFACE => array(
-      'name' => t('Interface text'),
-      'description' => t('Order of language detection methods for interface text. If a translation of interface text is available in the detected language, it will be displayed.'),
-      'locked' => TRUE,
-    ),
-    LanguageInterface::TYPE_CONTENT => array(
-      'name' => t('Content'),
-      'description' => t('Order of language detection methods for content. If a version of content is available in the detected language, it will be displayed.'),
-      'fixed' => array(LanguageNegotiationUI::METHOD_ID),
-      'locked' => TRUE,
-    ),
-    LanguageInterface::TYPE_URL => array(
-      'name' => t('URL'),
-      'description' => t('Order of language detection methods for URLs. The detected language will be used as the default when generating URLs for internal links on the site.'),
-      'fixed' => array(LanguageNegotiationUrl::METHOD_ID, LanguageNegotiationUrlFallback::METHOD_ID),
-      'locked' => TRUE,
-    ),
-  );
-}
-
-/**
  * Reads language prefixes and uses the langcode if no prefix is set.
+ *
+ * @deprecated in Drupal 8.0.x-dev, will be removed before Drupal 9.0.0.
+ *   Use \Drupal::config('language.negotiation')->get('url.prefixes') instead.
  */
 function language_negotiation_url_prefixes() {
   return \Drupal::config('language.negotiation')->get('url.prefixes');
@@ -329,7 +296,8 @@ function language_negotiation_url_prefixes() {
  * Update the list of prefixes from the installed languages.
  */
 function language_negotiation_url_prefixes_update() {
-  $prefixes = language_negotiation_url_prefixes();
+  $config = \Drupal::configFactory()->getEditable('language.negotiation');
+  $prefixes = $config->get('url.prefixes');
   foreach (\Drupal::languageManager()->getLanguages() as $language) {
     // The prefix for this language should be updated if it's not assigned yet
     // or the prefix is set to the empty string.
@@ -340,36 +308,17 @@ function language_negotiation_url_prefixes_update() {
     }
     // Otherwise we keep the configured prefix.
   }
-  language_negotiation_url_prefixes_save($prefixes);
-}
-
-/**
- * Saves language prefix settings.
- */
-function language_negotiation_url_prefixes_save(array $prefixes) {
-  // @todo https://www.drupal.org/node/2403229 $prefixes can contain
-  //   configuration overrides.
-  \Drupal::configFactory()->getEditable('language.negotiation')
-  ->set('url.prefixes', $prefixes)
-  ->save();
+  $config->set('url.prefixes', $prefixes)->save();
 }
 
 /**
  * Reads language domains.
+ *
+ * @deprecated in Drupal 8.0.x-dev, will be removed before Drupal 9.0.0.
+ *   Use \Drupal::config('language.negotiation')->get('url.domains') instead.
  */
 function language_negotiation_url_domains() {
   return \Drupal::config('language.negotiation')->get('url.domains');
-}
-
-/**
- * Saves the language domain settings.
- */
-function language_negotiation_url_domains_save(array $domains) {
-  // @todo https://www.drupal.org/node/2403229 $domains can contain
-  //   configuration overrides.
-  \Drupal::configFactory()->getEditable('language.negotiation')
-  ->set('url.domains', $domains)
-  ->save();
 }
 
 /**
@@ -412,9 +361,10 @@ function language_configurable_language_insert(ConfigurableLanguageInterface $la
   }
 
   // Add language to the list of language domains.
-  $domains = language_negotiation_url_domains();
+  $config = \Drupal::configFactory()->getEditable('language.negotiation');
+  $domains = $config->get('url.domains');
   $domains[$language->id()] = '';
-  language_negotiation_url_domains_save($domains);
+  $config->set('url.domains', $domains)->save();
 }
 
 /**
@@ -422,14 +372,16 @@ function language_configurable_language_insert(ConfigurableLanguageInterface $la
  */
 function language_configurable_language_delete(ConfigurableLanguageInterface $language) {
   // Remove language from language prefix list.
-  $prefixes = language_negotiation_url_prefixes();
+  $config = \Drupal::configFactory()->getEditable('language.negotiation');
+  $prefixes = $config->get('url.prefixes');
   unset($prefixes[$language->id()]);
-  language_negotiation_url_prefixes_save($prefixes);
+  $config->set('url.prefixes', $prefixes)->save();
 
   // Remove language from language domain list.
-  $domains = language_negotiation_url_domains();
+  $config = \Drupal::configFactory()->getEditable('language.negotiation');
+  $domains = $config->get('url.domains');
   unset($domains[$language->id()]);
-  language_negotiation_url_domains_save($domains);
+  $config->set('url.domains', $domains)->save();
 }
 
 /**
@@ -463,12 +415,12 @@ function language_form_alter(&$form, FormStateInterface $form_state) {
   // Content entity forms may have added a langcode field. But content language
   // configuration should decide if it should be exposed or not in the forms.
   $form_object = $form_state->getFormObject();
-  if ($form_object instanceof ContentEntityFormInterface) {
+  if ($form_object instanceof ContentEntityFormInterface && $form_object->getEntity()->getEntityType()->hasKey('langcode')) {
     /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
     $entity = $form_object->getEntity();
     $entity_type = $entity->getEntityType();
     $langcode_key = $entity_type->getKey('langcode');
-    if (isset($form[$langcode_key]) && $entity_type->isTranslatable()) {
+    if (isset($form[$langcode_key])) {
       $language_configuration = ContentLanguageSettings::loadByEntityTypeBundle($entity->getEntityTypeId(), $entity->bundle());
       $form[$langcode_key]['#access'] = $language_configuration->isLanguageAlterable();
     }
@@ -539,4 +491,17 @@ function language_tour_tips_alter(array &$tour_tips, EntityInterface $entity) {
       }
     }
   }
+}
+
+/**
+ * Implements hook_language_types_info_alter().
+ *
+ * We can't set the fixed properties in \Drupal\Core\Language\LanguageManager,
+ * where the rest of the properties for the default language types are defined.
+ * The LanguageNegation classes are only loaded when the language module is
+ * enabled and we can't be sure of that in the LanguageManager.
+ */
+function language_language_types_info_alter(array &$language_types) {
+  $language_types[LanguageInterface::TYPE_CONTENT]['fixed'] = [LanguageNegotiationUI::METHOD_ID];
+  $language_types[LanguageInterface::TYPE_URL]['fixed'] = [LanguageNegotiationUrl::METHOD_ID, LanguageNegotiationUrlFallback::METHOD_ID];
 }

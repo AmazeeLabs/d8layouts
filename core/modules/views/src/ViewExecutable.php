@@ -9,7 +9,6 @@ namespace Drupal\views;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Cache\Cache;
-use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Routing\RouteProviderInterface;
@@ -1372,11 +1371,11 @@ class ViewExecutable implements \Serializable {
     $themes[] = $active_theme->getName();
 
     // Check for already-cached output.
+    /** @var \Drupal\views\Plugin\views\cache\CachePluginBase $cache */
     if (!empty($this->live_preview)) {
-      $cache = FALSE;
+      $cache = Views::pluginManager('cache')->createInstance('none');
     }
     else {
-      /** @var \Drupal\views\Plugin\views\cache\CachePluginBase $cache */
       $cache = $this->display_handler->getPlugin('cache');
     }
 
@@ -1432,9 +1431,7 @@ class ViewExecutable implements \Serializable {
 
     $exposed_form->postRender($this->display_handler->output);
 
-    if ($cache) {
-      $cache->postRender($this->display_handler->output);
-    }
+    $cache->postRender($this->display_handler->output);
 
     // Let modules modify the view output after it is rendered.
     $module_handler->invokeAll('views_post_render', array($this, &$this->display_handler->output, $cache));
@@ -1443,7 +1440,7 @@ class ViewExecutable implements \Serializable {
     foreach ($themes as $theme_name) {
       $function = $theme_name . '_views_post_render';
       if (function_exists($function)) {
-        $function($this);
+        $function($this, $this->display_handler->output, $cache);
       }
     }
 
@@ -1616,29 +1613,6 @@ class ViewExecutable implements \Serializable {
   }
 
   /**
-   * Returns menu links from the view and the named display handler.
-   *
-   * @param string $display_id
-   *   A display ID.
-   *
-   * @return array|bool
-   *   The generated menu links for this view and display, FALSE if the call
-   *   to ::setDisplay failed.
-   */
-  public function getMenuLinks($display_id = NULL) {
-    // Prepare the view with the information we have. This was probably already
-    // called, but it's good to be safe.
-    if (!$this->setDisplay($display_id)) {
-      return FALSE;
-    }
-
-    // Execute the hook.
-    if (isset($this->display_handler)) {
-      return $this->display_handler->getMenuLinks();
-    }
-  }
-
-  /**
    * Determine if the given user has access to the view. Note that
    * this sets the display handler if it hasn't been.
    */
@@ -1673,7 +1647,7 @@ class ViewExecutable implements \Serializable {
   /**
    * Sets the used response object of the view.
    *
-   * @param Symfony\Component\HttpFoundation\Response $response
+   * @param \Symfony\Component\HttpFoundation\Response $response
    *   The response object which should be set.
    */
   public function setResponse(Response $response) {
@@ -1897,7 +1871,7 @@ class ViewExecutable implements \Serializable {
   public function getUrlInfo($display_id = '') {
     $this->initDisplay();
     if (!$this->display_handler instanceof DisplayRouterInterface) {
-      throw new \InvalidArgumentException(SafeMarkup::format('You cannot generate a URL for the display @display_id', ['@display_id' => $display_id]));
+      throw new \InvalidArgumentException("You cannot generate a URL for the display '$display_id'");
     }
     return $this->display_handler->getUrlInfo();
   }

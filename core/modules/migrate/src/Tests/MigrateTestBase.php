@@ -45,6 +45,13 @@ abstract class MigrateTestBase extends KernelTestBase implements MigrateMessageI
    */
   protected $migrateMessages;
 
+  /**
+   * The primary migration being tested.
+   *
+   * @var \Drupal\migrate\Entity\MigrationInterface
+   */
+  protected $migration;
+
   public static $modules = array('migrate');
 
   /**
@@ -73,6 +80,9 @@ abstract class MigrateTestBase extends KernelTestBase implements MigrateMessageI
   protected function tearDown() {
     Database::removeConnection('migrate');
     parent::tearDown();
+    $this->databaseDumpFiles = [];
+    $this->collectMessages = FALSE;
+    unset($this->migration, $this->migrateMessages);
   }
 
   /**
@@ -106,20 +116,19 @@ abstract class MigrateTestBase extends KernelTestBase implements MigrateMessageI
    *   ids.
    */
   protected function prepareMigrations(array $id_mappings) {
-    /** @var \Drupal\migrate\Entity\MigrationInterface[] $migrations */
-    $migrations = entity_load_multiple('migration', array_keys($id_mappings));
     foreach ($id_mappings as $migration_id => $data) {
-      $migration = $migrations[$migration_id];
+      // Use loadMultiple() here in order to load all variants.
+      foreach (Migration::loadMultiple([$migration_id]) as $migration) {
+        // Mark the dependent migrations as complete.
+        $migration->setMigrationResult(MigrationInterface::RESULT_COMPLETED);
 
-      // Mark the dependent migrations as complete.
-      $migration->setMigrationResult(MigrationInterface::RESULT_COMPLETED);
-
-      $id_map = $migration->getIdMap();
-      $id_map->setMessage($this);
-      $source_ids = $migration->getSourcePlugin()->getIds();
-      foreach ($data as $id_mapping) {
-        $row = new Row(array_combine(array_keys($source_ids), $id_mapping[0]), $source_ids);
-        $id_map->saveIdMapping($row, $id_mapping[1]);
+        $id_map = $migration->getIdMap();
+        $id_map->setMessage($this);
+        $source_ids = $migration->getSourcePlugin()->getIds();
+        foreach ($data as $id_mapping) {
+          $row = new Row(array_combine(array_keys($source_ids), $id_mapping[0]), $source_ids);
+          $id_map->saveIdMapping($row, $id_mapping[1]);
+        }
       }
     }
   }
@@ -132,12 +141,15 @@ abstract class MigrateTestBase extends KernelTestBase implements MigrateMessageI
    */
   protected function executeMigration($migration) {
     if (is_string($migration)) {
-      $migration = Migration::load($migration);
+      $this->migration = Migration::load($migration);
+    }
+    else {
+      $this->migration = $migration;
     }
     if ($this instanceof MigrateDumpAlterInterface) {
       static::migrateDumpAlter($this);
     }
-    (new MigrateExecutable($migration, $this))->import();
+    (new MigrateExecutable($this->migration, $this))->import();
   }
 
   /**

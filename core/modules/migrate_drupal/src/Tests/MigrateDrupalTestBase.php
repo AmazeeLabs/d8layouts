@@ -10,6 +10,8 @@ namespace Drupal\migrate_drupal\Tests;
 use Drupal\migrate\Tests\MigrateTestBase;
 use Drupal\migrate\Entity\Migration;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use Drupal\migrate\Plugin\migrate\source\SqlBase;
+use Drupal\Core\Database\Query\SelectInterface;
 
 /**
  * Base class for Drupal migration tests.
@@ -28,7 +30,8 @@ abstract class MigrateDrupalTestBase extends MigrateTestBase {
    */
   protected function setUp() {
     parent::setUp();
-    $this->loadDumps(['System.php']);
+    $tables = file_scan_directory($this->getDumpDirectory(), '/.php$/', array('recurse' => FALSE));
+    $this->loadDumps(array_keys($tables));
 
     $this->installEntitySchema('user');
     $this->installConfig(['migrate_drupal', 'system']);
@@ -45,14 +48,6 @@ abstract class MigrateDrupalTestBase extends MigrateTestBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  protected function loadDumps(array $files, $method = 'load') {
-    $files = array_map(function($file) { return $this->getDumpDirectory() . '/' . $file; }, $files);
-    parent::loadDumps($files, $method);
-  }
-
-  /**
    * Turn all the migration templates for the specified drupal version into
    * real migration entities so we can test them.
    *
@@ -61,9 +56,9 @@ abstract class MigrateDrupalTestBase extends MigrateTestBase {
    */
   protected function installMigrations($version) {
     $migration_templates = \Drupal::service('migrate.template_storage')->findTemplatesByTag($version);
-    foreach ($migration_templates as $template) {
+    $migrations = \Drupal::service('migrate.migration_builder')->createMigrations($migration_templates);
+    foreach ($migrations as $migration) {
       try {
-        $migration = Migration::create($template);
         $migration->save();
       }
       catch (PluginNotFoundException $e) {
@@ -74,4 +69,21 @@ abstract class MigrateDrupalTestBase extends MigrateTestBase {
       }
     }
   }
+
+  /**
+   * Test that the source plugin provides a valid query and a valid count.
+   */
+  public function testSourcePlugin() {
+    if (isset($this->migration)) {
+      $source = $this->migration->getSourcePlugin();
+      // Make sure a SqlBase source has a valid query.
+      if ($source instanceof SqlBase) {
+        /** @var SqlBase $source */
+        $this->assertTrue($source->query() instanceof SelectInterface, 'SQL source plugin has valid query');
+      }
+      // Validate that any source returns a valid count.
+      $this->assertTrue(is_numeric($source->count()), 'Source plugin returns valid count');
+    }
+  }
+
 }

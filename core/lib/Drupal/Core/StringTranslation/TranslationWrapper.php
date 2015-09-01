@@ -85,6 +85,16 @@ class TranslationWrapper implements SafeStringInterface {
   }
 
   /**
+   * Gets all options from this translation wrapper.
+   *
+   * @return mixed[]
+   *   The array of options.
+   */
+  public function getOptions() {
+    return $this->options;
+  }
+
+  /**
    * Implements the magic __toString() method.
    */
   public function __toString() {
@@ -106,6 +116,16 @@ class TranslationWrapper implements SafeStringInterface {
    */
   public function __sleep() {
     return array('string', 'arguments', 'options');
+  }
+
+  /**
+   * Returns a representation of the object for use in JSON serialization.
+   *
+   * @return string
+   *   The safe string content.
+   */
+  public function jsonSerialize() {
+    return $this->__toString();
   }
 
 }

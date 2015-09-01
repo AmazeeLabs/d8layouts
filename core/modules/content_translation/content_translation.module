@@ -13,6 +13,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\StringTranslation\TranslationWrapper;
 
 /**
  * Implements hook_help().
@@ -251,8 +252,8 @@ function content_translation_views_data_alter(array &$data) {
  */
 function content_translation_menu_links_discovered_alter(array &$links) {
   // Clarify where translation settings are located.
-  $links['language.content_settings_page']['title'] = 'Content language and translation';
-  $links['language.content_settings_page']['description'] = 'Configure language and translation support for content.';
+  $links['language.content_settings_page']['title'] = new TranslationWrapper('Content language and translation');
+  $links['language.content_settings_page']['description'] = new TranslationWrapper('Configure language and translation support for content.');
 }
 
 /**
@@ -266,7 +267,8 @@ function content_translation_menu_links_discovered_alter(array &$links) {
  */
 function content_translation_translate_access(EntityInterface $entity) {
   $account = \Drupal::currentUser();
-  $condition = $entity instanceof ContentEntityInterface && !$entity->getUntranslated()->language()->isLocked() && \Drupal::languageManager()->isMultilingual() && $entity->isTranslatable() &&
+  $condition = $entity instanceof ContentEntityInterface && $entity->access('view') &&
+    !$entity->getUntranslated()->language()->isLocked() && \Drupal::languageManager()->isMultilingual() && $entity->isTranslatable() &&
     ($account->hasPermission('create content translations') || $account->hasPermission('update content translations') || $account->hasPermission('delete content translations'));
   return AccessResult::allowedIf($condition)->cachePerPermissions()->cacheUntilEntityChanges($entity);
 }
@@ -466,7 +468,6 @@ function content_translation_language_configuration_element_process(array $eleme
       // default to no translatability.
       '#default_value' => $context['bundle'] ? \Drupal::service('content_translation.manager')->isEnabled($context['entity_type'], $context['bundle']) : FALSE,
       '#element_validate' => array('content_translation_language_configuration_element_validate'),
-      '#prefix' => '<label>' . t('Translation') . '</label>',
     );
 
     $submit_name = isset($form['actions']['save_continue']) ? 'save_continue' : 'submit';

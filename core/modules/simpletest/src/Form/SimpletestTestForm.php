@@ -8,7 +8,6 @@
 namespace Drupal\simpletest\Form;
 
 use Drupal\Component\Utility\SortArray;
-use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\RendererInterface;
@@ -127,8 +126,8 @@ class SimpletestTestForm extends FormBase {
       '#suffix' => '<a href="#" class="simpletest-collapse">(' . $this->t('Collapse') . ')</a>',
     );
     $form['tests']['#attached']['drupalSettings']['simpleTest']['images'] = [
-      $this->renderer->renderPlain($image_collapsed),
-      $this->renderer->renderPlain($image_extended),
+      (string) $this->renderer->renderPlain($image_collapsed),
+      (string) $this->renderer->renderPlain($image_extended),
     ];
 
     // Generate the list of tests arranged by group.
@@ -179,7 +178,7 @@ class SimpletestTestForm extends FormBase {
         );
         $form['tests'][$class]['description'] = array(
           '#prefix' => '<div class="description">',
-          '#markup' => SafeMarkup::checkPlain($info['description']),
+          '#plain_text' => $info['description'],
           '#suffix' => '</div>',
           '#wrapper_attributes' => array(
             'class' => array('simpletest-test-description', 'table-filter-text-source'),

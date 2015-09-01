@@ -7,8 +7,7 @@
 
 namespace Drupal\migrate_drupal\Tests;
 
-use Drupal\Component\Utility\SafeMarkup;
-use Drupal\migrate\MigrateExecutable;
+use Drupal\migrate\Entity\Migration;
 use Drupal\simpletest\TestBase;
 
 /**
@@ -17,20 +16,22 @@ use Drupal\simpletest\TestBase;
 abstract class MigrateFullDrupalTestBase extends MigrateDrupalTestBase {
 
   /**
-   * Get the dump classes required for this migration test.
+   * The group to which tests should belong in order for this test to run them.
    *
-   * @return array
-   *   The list of files containing dumps.
+   * @var string
    */
-  protected abstract function getDumps();
+  const TEST_GROUP = '';
 
   /**
    * Get the test classes that needs to be run for this test.
    *
    * @return array
-   *   The list of test fully-classified class names.
+   *   The list of fully-classified test class names.
    */
-  protected abstract function getTestClassesList();
+  protected function getTestClassesList() {
+    $groups = \Drupal::getContainer()->get('test_discovery')->getTestClasses();
+    return isset($groups[static::TEST_GROUP]) ? array_keys($groups[static::TEST_GROUP]) : [];
+  }
 
   /**
    * {@inheritdoc}
@@ -46,14 +47,10 @@ abstract class MigrateFullDrupalTestBase extends MigrateDrupalTestBase {
     parent::tearDown();
   }
 
-
   /**
    * Test the complete Drupal migration.
    */
   public function testDrupal() {
-    $dumps = $this->getDumps();
-    $this->loadDumps($dumps);
-
     $classes = $this->getTestClassesList();
     foreach ($classes as $class) {
       if (is_subclass_of($class, '\Drupal\migrate\Tests\MigrateDumpAlterInterface')) {
@@ -62,9 +59,9 @@ abstract class MigrateFullDrupalTestBase extends MigrateDrupalTestBase {
     }
 
     // Run every migration in the order specified by the storage controller.
-    foreach (entity_load_multiple('migration', static::$migrations) as $migration) {
-      (new MigrateExecutable($migration, $this))->import();
-    }
+    $migrations = Migration::loadMultiple(static::$migrations);
+    array_walk($migrations, [$this, 'executeMigration']);
+
     foreach ($classes as $class) {
       $test_object = new $class($this->testId);
       $test_object->databasePrefix = $this->databasePrefix;

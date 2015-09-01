@@ -7,12 +7,13 @@
 
 namespace Drupal\Core\Theme;
 
+use Drupal\Component\Utility\SafeStringInterface;
+use Drupal\Core\Render\SafeString;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Routing\StackedRouteMatchInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Template\Attribute;
-use Drupal\Component\Utility\SafeMarkup;
 
 /**
  * Provides the default implementation of a theme manager.
@@ -96,13 +97,6 @@ class ThemeManager implements ThemeManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function render($hook, array $variables) {
-    return $this->theme($hook, $variables);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getActiveTheme(RouteMatchInterface $route_match = NULL) {
     if (!isset($this->activeTheme)) {
       $this->initTheme($route_match);
@@ -137,11 +131,9 @@ class ThemeManager implements ThemeManagerInterface {
   }
 
   /**
-   * Generates themed output (internal use only).
-   *
-   * @see \Drupal\Core\Render\RendererInterface::render();
+   * {@inheritdoc}
    */
-  protected function theme($hook, $variables = array()) {
+  public function render($hook, array $variables) {
     static $default_attributes;
 
     $active_theme = $this->getActiveTheme();
@@ -288,12 +280,10 @@ class ThemeManager implements ThemeManagerInterface {
           include_once $this->root . '/' . $include_file;
         }
       }
-      // Replace the preprocess functions with those from the base hook.
       if (isset($base_hook_info['preprocess functions'])) {
         // Set a variable for the 'theme_hook_suggestion'. This is used to
         // maintain backwards compatibility with template engines.
         $theme_hook_suggestion = $hook;
-        $info['preprocess functions'] = $base_hook_info['preprocess functions'];
       }
     }
     if (isset($info['preprocess functions'])) {
@@ -326,7 +316,10 @@ class ThemeManager implements ThemeManagerInterface {
     $output = '';
     if (isset($info['function'])) {
       if (function_exists($info['function'])) {
-        $output = SafeMarkup::set($info['function']($variables));
+        // Theme functions do not render via the theme engine, so the output is
+        // not autoescaped. However, we can only presume that the theme function
+        // has been written correctly and that the markup is safe.
+        $output = SafeString::create($info['function']($variables));
       }
     }
     else {
@@ -396,7 +389,7 @@ class ThemeManager implements ThemeManagerInterface {
       $output = $render_function($template_file, $variables);
     }
 
-    return (string) $output;
+    return ($output instanceof SafeStringInterface) ? $output : (string) $output;
   }
 
   /**

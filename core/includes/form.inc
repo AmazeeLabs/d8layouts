@@ -43,7 +43,7 @@ function template_preprocess_select(&$variables) {
 }
 
 /**
- * Converts an array of options into HTML, for use in select list form elements.
+ * Converts an options form element into a structured array for output.
  *
  * This function calls itself recursively to obtain the values for each optgroup
  * within the list of options and when the function encounters an object with
@@ -78,13 +78,22 @@ function template_preprocess_select(&$variables) {
  *   $element['#options'] above, or NULL. This parameter is only used internally
  *   and is not intended to be passed in to the initial function call.
  *
- * @return string
- *   An HTML string of options and optgroups for use in a select form element.
+ * @return mixed[]
+ *   A structured, possibly nested, array of options and optgroups for use in a
+ *   select form element.
+ *   - label: A translated string whose value is the text of a single HTML
+ *     option element, or the label attribute for an optgroup.
+ *   - options: Optional, array of options for an optgroup.
+ *   - selected: A boolean that indicates whether the option is selected when
+ *     rendered.
+ *   - type: A string that defines the element type. The value can be 'option'
+ *     or 'optgroup'.
+ *   - value: A string that contains the value attribute for the option.
  */
 function form_select_options($element, $choices = NULL) {
   if (!isset($choices)) {
     if (empty($element['#options'])) {
-      return '';
+      return [];
     }
     $choices = $element['#options'];
   }
@@ -94,29 +103,35 @@ function form_select_options($element, $choices = NULL) {
   $value_is_array = $value_valid && is_array($element['#value']);
   // Check if the element is multiple select and no value has been selected.
   $empty_value = (empty($element['#value']) && !empty($element['#multiple']));
-  $options = '';
+  $options = [];
   foreach ($choices as $key => $choice) {
     if (is_array($choice)) {
-      $options .= '<optgroup label="' . SafeMarkup::checkPlain($key) . '">';
-      $options .= form_select_options($element, $choice);
-      $options .= '</optgroup>';
+      $options[] = [
+        'type' => 'optgroup',
+        'label' => $key,
+        'options' => form_select_options($element, $choice),
+      ];
     }
     elseif (is_object($choice) && isset($choice->option)) {
-      $options .= form_select_options($element, $choice->option);
+      $options = array_merge($options, form_select_options($element, $choice->option));
     }
     else {
+      $option = [];
       $key = (string) $key;
       $empty_choice = $empty_value && $key == '_none';
       if ($value_valid && ((!$value_is_array && (string) $element['#value'] === $key || ($value_is_array && in_array($key, $element['#value']))) || $empty_choice)) {
-        $selected = ' selected="selected"';
+        $option['selected'] = TRUE;
       }
       else {
-        $selected = '';
+        $option['selected'] = FALSE;
       }
-      $options .= '<option value="' . SafeMarkup::checkPlain($key) . '"' . $selected . '>' . SafeMarkup::checkPlain($choice) . '</option>';
+      $option['type'] = 'option';
+      $option['value'] = $key;
+      $option['label'] = $choice;
+      $options[] = $option;
     }
   }
-  return SafeMarkup::set($options);
+  return $options;
 }
 
 /**
@@ -191,7 +206,10 @@ function template_preprocess_fieldset(&$variables) {
   $variables['children'] = $element['#children'];
   $variables['required'] = !empty($element['#required']) ? $element['#required'] : NULL;
 
-  $variables['legend']['title'] = (isset($element['#title']) && $element['#title'] !== '') ? Xss::filterAdmin($element['#title']) : '';
+  if (isset($element['#title']) && $element['#title'] !== '') {
+    $variables['legend']['title'] = ['#markup' => $element['#title']];
+  }
+
   $variables['legend']['attributes'] = new Attribute();
   $variables['legend_span']['attributes'] = new Attribute();
 
@@ -358,7 +376,7 @@ function template_preprocess_textarea(&$variables) {
   Element\RenderElement::setAttributes($element, array('form-textarea'));
   $variables['wrapper_attributes'] = new Attribute();
   $variables['attributes'] = new Attribute($element['#attributes']);
-  $variables['value'] = SafeMarkup::checkPlain($element['#value']);
+  $variables['value'] = $element['#value'];
   $variables['resizable'] = !empty($element['#resizable']) ? $element['#resizable'] : NULL;
   $variables['required'] = !empty($element['#required']) ? $element['#required'] : NULL;
 }
@@ -489,7 +507,10 @@ function template_preprocess_form_element(&$variables) {
 function template_preprocess_form_element_label(&$variables) {
   $element = $variables['element'];
   // If title and required marker are both empty, output no label.
-  $variables['title'] = (isset($element['#title']) && $element['#title'] !== '') ? Xss::filterAdmin($element['#title']) : '';
+  if (isset($element['#title']) && $element['#title'] !== '') {
+    $variables['title'] = ['#markup' => $element['#title']];
+  }
+
   $variables['attributes'] = array();
 
   // Pass elements title_display to template.
@@ -755,7 +776,14 @@ function batch_set($batch_definition) {
  *
  * @param \Drupal\Core\Url|string $redirect
  *   (optional) Either path or Url object to redirect to when the batch has
- *   finished processing.
+ *   finished processing. Note that to simply force a batch to (conditionally)
+ *   redirect to a custom location after it is finished processing but to
+ *   otherwise allow the standard form API batch handling to occur, it is not
+ *   necessary to call batch_process() and use this parameter. Instead, make
+ *   the batch 'finished' callback return an instance of
+ *   \Symfony\Component\HttpFoundation\RedirectResponse, which will be used
+ *   automatically by the standard batch processing pipeline (and which takes
+ *   precedence over this parameter).
  * @param \Drupal\Core\Url $url
  *   (optional - should only be used for separate scripts like update.php)
  *   URL of the batch processing page.

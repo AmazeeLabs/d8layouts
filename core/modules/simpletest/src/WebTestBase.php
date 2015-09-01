@@ -71,6 +71,13 @@ abstract class WebTestBase extends TestBase {
   protected $curlHandle;
 
   /**
+   * Whether or not to assert the presence of the X-Drupal-Ajax-Token.
+   *
+   * @var bool
+   */
+  protected $assertAjaxHeader = TRUE;
+
+  /**
    * The headers of the page currently loaded in the internal browser.
    *
    * @var Array
@@ -165,6 +172,21 @@ abstract class WebTestBase extends TestBase {
    * The number of redirects followed during the handling of a request.
    */
   protected $redirectCount;
+
+
+  /**
+   * The number of meta refresh redirects to follow, or NULL if unlimited.
+   *
+   * @var null|int
+   */
+  protected $maximumMetaRefreshCount = NULL;
+
+  /**
+   * The number of meta refresh redirects followed during ::drupalGet().
+   *
+   * @var int
+   */
+  protected $metaRefreshCount = 0;
 
   /**
    * The kernel used in this test.
@@ -711,7 +733,6 @@ abstract class WebTestBase extends TestBase {
     // Not using File API; a potential error must trigger a PHP warning.
     $directory = DRUPAL_ROOT . '/' . $this->siteDirectory;
     copy(DRUPAL_ROOT . '/sites/default/default.settings.php', $directory . '/settings.php');
-    copy(DRUPAL_ROOT . '/sites/default/default.services.yml', $directory . '/services.yml');
 
     // All file system paths are created by System module during installation.
     // @see system_requirements()
@@ -753,10 +774,12 @@ abstract class WebTestBase extends TestBase {
       file_put_contents($directory . '/settings.php', "\n\$test_class = '" . get_class($this) ."';\n" . 'include DRUPAL_ROOT . \'/\' . $site_path . \'/settings.testing.php\';' ."\n", FILE_APPEND);
     }
     $settings_services_file = DRUPAL_ROOT . '/' . $this->originalSite . '/testing.services.yml';
-    if (file_exists($settings_services_file)) {
-      // Copy the testing-specific service overrides in place.
-      copy($settings_services_file, $directory . '/services.yml');
+    if (!file_exists($settings_services_file)) {
+      // Otherwise, use the default services as a starting point for overrides.
+      $settings_services_file = DRUPAL_ROOT . '/sites/default/default.services.yml';
     }
+    // Copy the testing-specific service overrides in place.
+    copy($settings_services_file, $directory . '/services.yml');
     if ($this->strictConfigSchema) {
       // Add a listener to validate configuration schema on save.
       $yaml = new \Symfony\Component\Yaml\Yaml();
@@ -830,6 +853,15 @@ abstract class WebTestBase extends TestBase {
     $config->getEditable('system.performance')
       ->set('css.preprocess', FALSE)
       ->set('js.preprocess', FALSE)
+      ->save();
+
+    // Set an explicit time zone to not rely on the system one, which may vary
+    // from setup to setup. The Australia/Sydney time zone is chosen so all
+    // tests are run using an edge case scenario (UTC+10 and DST). This choice
+    // is made to prevent time zone related regressions and reduce the
+    // fragility of the testing system in general.
+    $config->getEditable('system.date')
+      ->set('timezone.default', 'Australia/Sydney')
       ->save();
   }
 
@@ -1206,6 +1238,9 @@ abstract class WebTestBase extends TestBase {
     }
     parent::tearDown();
 
+    // Ensure that the maximum meta refresh count is reset.
+    $this->maximumMetaRefreshCount = NULL;
+
     // Ensure that internal logged in variable and cURL options are reset.
     $this->loggedInUser = FALSE;
     $this->additionalCurlOptions = array();
@@ -1248,6 +1283,8 @@ abstract class WebTestBase extends TestBase {
         CURLOPT_SSL_VERIFYHOST => FALSE,
         CURLOPT_HEADERFUNCTION => array(&$this, 'curlHeaderCallback'),
         CURLOPT_USERAGENT => $this->databasePrefix,
+        // Disable support for the @ prefix for uploading files.
+        CURLOPT_SAFE_UPLOAD => TRUE,
       );
       if (isset($this->httpAuthCredentials)) {
         $curl_options[CURLOPT_HTTPAUTH] = $this->httpAuthMethod;
@@ -1493,6 +1530,8 @@ abstract class WebTestBase extends TestBase {
     // Replace original page output with new output from redirected page(s).
     if ($new = $this->checkForMetaRefresh()) {
       $out = $new;
+      // We are finished with all meta refresh redirects, so reset the counter.
+      $this->metaRefreshCount = 0;
     }
 
     if ($path instanceof Url) {
@@ -1502,7 +1541,7 @@ abstract class WebTestBase extends TestBase {
     $verbose = 'GET request to: ' . $path .
                '<hr />Ending URL: ' . $this->getUrl();
     if ($this->dumpHeaders) {
-      $verbose .= '<hr />Headers: <pre>' . SafeMarkup::checkPlain(var_export(array_map('trim', $this->headers), TRUE)) . '</pre>';
+      $verbose .= '<hr />Headers: <pre>' . Html::escape(var_export(array_map('trim', $this->headers), TRUE)) . '</pre>';
     }
     $verbose .= '<hr />' . $out;
 
@@ -1555,7 +1594,15 @@ abstract class WebTestBase extends TestBase {
     if (!isset($options['query'][MainContentViewSubscriber::WRAPPER_FORMAT])) {
       $options['query'][MainContentViewSubscriber::WRAPPER_FORMAT] = 'drupal_ajax';
     }
-    return Json::decode($this->drupalGet($path, $options, $headers));
+    return Json::decode($this->drupalGetXHR($path, $options, $headers));
+  }
+
+  /**
+   * Requests a Drupal path as if it is a XMLHttpRequest.
+   */
+  protected function drupalGetXHR($path, array $options = array(), array $headers = array()) {
+    $headers[] = 'X-Requested-With: XMLHttpRequest';
+    return $this->drupalGet($path, $options, $headers);
   }
 
   /**
@@ -1601,9 +1648,6 @@ abstract class WebTestBase extends TestBase {
    *   $edit = array();
    *   $edit['name[]'] = array('value1', 'value2');
    *   @endcode
-   *
-   *   Note that when a form contains file upload fields, other
-   *   fields cannot start with the '@' character.
    * @param $submit
    *   Value of the submit button whose click is to be emulated. For example,
    *   t('Save'). The processing of the request depends on this value. For
@@ -1683,16 +1727,20 @@ abstract class WebTestBase extends TestBase {
           $post_array = $post;
           if ($upload) {
             foreach ($upload as $key => $file) {
-              $file = drupal_realpath($file);
-              if ($file && is_file($file)) {
-                // Use the new CurlFile class for file uploads when using PHP
-                // 5.5.
-                if (class_exists('CurlFile')) {
-                  $post[$key] = curl_file_create($file);
+              if (is_array($file) && count($file)) {
+                // There seems to be no way via php's API to cURL to upload
+                // several files with the same post field name. However, Drupal
+                // still sees array-index syntax in a similar way.
+                for ($i = 0; $i < count($file); $i++) {
+                  $postfield = str_replace('[]', '', $key) . '[' . $i . ']';
+                  $file_path = $this->container->get('file_system')->realpath($file[$i]);
+                  $post[$postfield] = curl_file_create($file_path);
                 }
-                else {
-                  // @todo: Drop support for this when PHP 5.5 is required.
-                  $post[$key] = '@' . $file;
+              }
+              else {
+                $file = $this->container->get('file_system')->realpath($file);
+                if ($file && is_file($file)) {
+                  $post[$key] = curl_file_create($file);
                 }
               }
             }
@@ -1717,7 +1765,7 @@ abstract class WebTestBase extends TestBase {
           $verbose = 'POST request to: ' . $path;
           $verbose .= '<hr />Ending URL: ' . $this->getUrl();
           if ($this->dumpHeaders) {
-            $verbose .= '<hr />Headers: <pre>' . SafeMarkup::checkPlain(var_export(array_map('trim', $this->headers), TRUE)) . '</pre>';
+            $verbose .= '<hr />Headers: <pre>' . Html::escape(var_export(array_map('trim', $this->headers), TRUE)) . '</pre>';
           }
           $verbose .= '<hr />Fields: ' . highlight_string('<?php ' . var_export($post_array, TRUE), TRUE);
           $verbose .= '<hr />' . $out;
@@ -1855,6 +1903,9 @@ abstract class WebTestBase extends TestBase {
 
     // Submit the POST request.
     $return = Json::decode($this->drupalPostForm(NULL, $edit, array('path' => $ajax_path, 'triggering_element' => $triggering_element), $options, $headers, $form_html_id, $extra_post));
+    if ($this->assertAjaxHeader) {
+      $this->assertIdentical($this->drupalGetHeader('X-Drupal-Ajax-Token'), '1', 'Ajax response header found.');
+    }
 
     // Change the page content by applying the returned commands.
     if (!empty($ajax_settings) && !empty($return)) {
@@ -2142,12 +2193,13 @@ abstract class WebTestBase extends TestBase {
    *   Either the new page content or FALSE.
    */
   protected function checkForMetaRefresh() {
-    if (strpos($this->getRawContent(), '<meta ') && $this->parse()) {
+    if (strpos($this->getRawContent(), '<meta ') && $this->parse() && (!isset($this->maximumMetaRefreshCount) || $this->metaRefreshCount < $this->maximumMetaRefreshCount)) {
       $refresh = $this->xpath('//meta[@http-equiv="Refresh"]');
       if (!empty($refresh)) {
         // Parse the content attribute of the meta tag for the format:
         // "[delay]: URL=[page_to_redirect_to]".
         if (preg_match('/\d+;\s*URL=(?<url>.*)/i', $refresh[0]['content'], $match)) {
+          $this->metaRefreshCount++;
           return $this->drupalGet($this->getAbsoluteUrl(Html::decodeEntities($match['url'])));
         }
       }
@@ -2179,7 +2231,7 @@ abstract class WebTestBase extends TestBase {
     if ($this->dumpHeaders) {
       $this->verbose('GET request to: ' . $path .
                      '<hr />Ending URL: ' . $this->getUrl() .
-                     '<hr />Headers: <pre>' . SafeMarkup::checkPlain(var_export(array_map('trim', $this->headers), TRUE)) . '</pre>');
+                     '<hr />Headers: <pre>' . Html::escape(var_export(array_map('trim', $this->headers), TRUE)) . '</pre>');
     }
 
     return $out;
@@ -2453,7 +2505,7 @@ abstract class WebTestBase extends TestBase {
         $path = substr($path, $length);
       }
       // Ensure that we have an absolute path.
-      if ($path[0] !== '/') {
+      if (empty($path) || $path[0] !== '/') {
         $path = '/' . $path;
       }
       // Finally, prepend the $base_url.

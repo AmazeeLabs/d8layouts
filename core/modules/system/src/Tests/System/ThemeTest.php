@@ -30,7 +30,7 @@ class ThemeTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = array('node', 'block', 'file');
+  public static $modules = ['node', 'block', 'file'];
 
   protected function setUp() {
     parent::setUp();
@@ -40,6 +40,7 @@ class ThemeTest extends WebTestBase {
     $this->adminUser = $this->drupalCreateUser(array('access administration pages', 'view the administration theme', 'administer themes', 'bypass node access', 'administer blocks'));
     $this->drupalLogin($this->adminUser);
     $this->node = $this->drupalCreateNode();
+    $this->drupalPlaceBlock('local_tasks_block');
   }
 
   /**
@@ -273,6 +274,10 @@ class ThemeTest extends WebTestBase {
     $this->drupalGet('admin/appearance');
     $this->assertText(t('This theme requires the base theme @base_theme to operate correctly.', array('@base_theme' => 'not_real_test_basetheme')));
     $this->assertText(t('This theme requires the theme engine @theme_engine to operate correctly.', array('@theme_engine' => 'not_real_engine')));
+    // Check for the error text of a theme with the wrong core version.
+    $this->assertText("This theme is not compatible with Drupal 8.x. Check that the .info.yml file contains the correct 'core' value.");
+    // Check for the error text of a theme without a content region.
+    $this->assertText("This theme is missing a 'content' region.");
   }
 
   /**

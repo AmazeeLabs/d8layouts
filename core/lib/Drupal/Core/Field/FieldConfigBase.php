@@ -12,7 +12,6 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Field\TypedData\FieldItemDataDefinition;
-use Drupal\Component\Utility\SafeMarkup;
 
 /**
  * Base class for configurable field definitions.
@@ -249,15 +248,10 @@ abstract class FieldConfigBase extends ConfigEntityBase implements FieldConfigIn
     // @see \Drupal\Core\Field\FieldItemInterface::calculateDependencies()
     $this->addDependencies($definition['class']::calculateDependencies($this));
 
-    // If the target entity type uses entities to manage its bundles then
-    // depend on the bundle entity.
-    $bundle_entity_type_id = $this->entityManager()->getDefinition($this->entity_type)->getBundleEntityType();
-    if ($bundle_entity_type_id != 'bundle') {
-      if (!$bundle_entity = $this->entityManager()->getStorage($bundle_entity_type_id)->load($this->bundle)) {
-        throw new \LogicException(SafeMarkup::format('Missing bundle entity, entity type %type, entity id %bundle.', array('%type' => $bundle_entity_type_id, '%bundle' => $this->bundle)));
-      }
-      $this->addDependency('config', $bundle_entity->getConfigDependencyName());
-    }
+    // Create dependency on the bundle.
+    $bundle_config_dependency = $this->entityManager()->getDefinition($this->entity_type)->getBundleConfigDependency($this->bundle);
+    $this->addDependency($bundle_config_dependency['type'], $bundle_config_dependency['name']);
+
     return $this->dependencies;
   }
 

@@ -5,9 +5,11 @@
  * Defines a "managed_file" Form API field and a "file" field for Field module.
  */
 
-use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Datetime\Entity\DateFormat;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
@@ -627,7 +629,7 @@ function file_file_download($uri) {
 }
 
 /**
- * Implements file_cron()
+ * Implements hook_cron().
  */
 function file_cron() {
   $age = \Drupal::config('system.file')->get('temporary_maximum_age');
@@ -938,7 +940,7 @@ function file_file_predelete(File $file) {
 /**
  * Implements hook_tokens().
  */
-function file_tokens($type, $tokens, array $data = array(), array $options = array()) {
+function file_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
   $token_service = \Drupal::token();
 
   $url_options = array('absolute' => TRUE);
@@ -966,15 +968,15 @@ function file_tokens($type, $tokens, array $data = array(), array $options = arr
 
         // Essential file data
         case 'name':
-          $replacements[$original] = $sanitize ? SafeMarkup::checkPlain($file->getFilename()) : $file->getFilename();
+          $replacements[$original] = $sanitize ? Html::escape($file->getFilename()) : $file->getFilename();
           break;
 
         case 'path':
-          $replacements[$original] = $sanitize ? SafeMarkup::checkPlain($file->getFileUri()) : $file->getFileUri();
+          $replacements[$original] = $sanitize ? Html::escape($file->getFileUri()) : $file->getFileUri();
           break;
 
         case 'mime':
-          $replacements[$original] = $sanitize ? SafeMarkup::checkPlain($file->getMimeType()) : $file->getMimeType();
+          $replacements[$original] = $sanitize ? Html::escape($file->getMimeType()) : $file->getMimeType();
           break;
 
         case 'size':
@@ -982,35 +984,41 @@ function file_tokens($type, $tokens, array $data = array(), array $options = arr
           break;
 
         case 'url':
-          $replacements[$original] = $sanitize ? SafeMarkup::checkPlain(file_create_url($file->getFileUri())) : file_create_url($file->getFileUri());
+          $replacements[$original] = $sanitize ? Html::escape(file_create_url($file->getFileUri())) : file_create_url($file->getFileUri());
           break;
 
         // These tokens are default variations on the chained tokens handled below.
         case 'created':
+          $date_format = DateFormat::load('medium');
+          $bubbleable_metadata->addCacheableDependency($date_format);
           $replacements[$original] = format_date($file->getCreatedTime(), 'medium', '', NULL, $langcode);
           break;
 
         case 'changed':
+          $date_format = DateFormat::load('medium');
+          $bubbleable_metadata = $bubbleable_metadata->addCacheableDependency($date_format);
           $replacements[$original] = format_date($file->getChangedTime(), 'medium', '', NULL, $langcode);
           break;
 
         case 'owner':
-          $name = $file->getOwner()->label();
-          $replacements[$original] = $sanitize ? SafeMarkup::checkPlain($name) : $name;
+          $owner = $file->getOwner();
+          $bubbleable_metadata->addCacheableDependency($owner);
+          $name = $owner->label();
+          $replacements[$original] = $sanitize ? Html::escape($name) : $name;
           break;
       }
     }
 
     if ($date_tokens = $token_service->findWithPrefix($tokens, 'created')) {
-      $replacements += $token_service->generate('date', $date_tokens, array('date' => $file->getCreatedTime()), $options);
+      $replacements += $token_service->generate('date', $date_tokens, array('date' => $file->getCreatedTime()), $options, $bubbleable_metadata);
     }
 
     if ($date_tokens = $token_service->findWithPrefix($tokens, 'changed')) {
-      $replacements += $token_service->generate('date', $date_tokens, array('date' => $file->getChangedTime()), $options);
+      $replacements += $token_service->generate('date', $date_tokens, array('date' => $file->getChangedTime()), $options, $bubbleable_metadata);
     }
 
     if (($owner_tokens = $token_service->findWithPrefix($tokens, 'owner')) && $file->getOwner()) {
-      $replacements += $token_service->generate('user', $owner_tokens, array('user' => $file->getOwner()), $options);
+      $replacements += $token_service->generate('user', $owner_tokens, array('user' => $file->getOwner()), $options, $bubbleable_metadata);
     }
   }
 
@@ -1240,7 +1248,7 @@ function template_preprocess_file_link(&$variables) {
   }
   else {
     $link_text = $variables['description'];
-    $options['attributes']['title'] = SafeMarkup::checkPlain($file_entity->getFilename());
+    $options['attributes']['title'] = $file_entity->getFilename();
   }
 
   // Classes to add to the file field for icons.
@@ -1266,7 +1274,7 @@ function template_preprocess_file_link(&$variables) {
  *   A MIME type.
  *
  * @return string
- *   A class associated to the file.
+ *   A class associated with the file.
  */
 function file_icon_class($mime_type) {
   // Search for a group with the files MIME type.

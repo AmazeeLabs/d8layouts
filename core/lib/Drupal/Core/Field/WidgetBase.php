@@ -86,7 +86,7 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface 
       $delta = isset($get_delta) ? $get_delta : 0;
       $element = array(
         '#title' => SafeMarkup::checkPlain($this->fieldDefinition->getLabel()),
-        '#description' => $this->fieldFilterXss(\Drupal::token()->replace($this->fieldDefinition->getDescription())),
+        '#description' => FieldFilteredString::create(\Drupal::token()->replace($this->fieldDefinition->getDescription())),
       );
       $element = $this->formSingleElement($items, $delta, $element, $form, $form_state);
 
@@ -128,9 +128,9 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface 
       '#parents' => array_merge($parents, array($field_name . '_wrapper')),
       '#attributes' => array(
         'class' => array(
-          'field-type-' . Html::getClass($this->fieldDefinition->getType()),
-          'field-name-' . Html::getClass($field_name),
-          'field-widget-' . Html::getClass($this->getPluginId()),
+          'field--type-' . Html::getClass($this->fieldDefinition->getType()),
+          'field--name-' . Html::getClass($field_name),
+          'field--widget-' . Html::getClass($this->getPluginId()),
         ),
       ),
       'widget' => $elements,
@@ -165,7 +165,7 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface 
     }
 
     $title = SafeMarkup::checkPlain($this->fieldDefinition->getLabel());
-    $description = $this->fieldFilterXss(\Drupal::token()->replace($this->fieldDefinition->getDescription()));
+    $description = FieldFilteredString::create(\Drupal::token()->replace($this->fieldDefinition->getDescription()));
 
     $elements = array();
 
