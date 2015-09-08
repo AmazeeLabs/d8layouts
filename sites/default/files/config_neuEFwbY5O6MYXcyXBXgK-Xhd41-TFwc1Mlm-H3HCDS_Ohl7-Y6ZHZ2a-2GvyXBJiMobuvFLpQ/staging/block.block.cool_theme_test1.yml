@@ -1,0 +1,27 @@
+uuid: e998a3f2-92e6-4b0f-ad12-181188cb39b8
+langcode: en
+status: false
+dependencies:
+  content:
+    - 'block_content:basic:98d5a37a-c1df-418a-aa15-21e0568bd202'
+  module:
+    - block_content
+  theme:
+    - cool_theme
+id: cool_theme_test1
+theme: cool_theme
+region: '-1'
+weight: -7
+provider: null
+plugin: 'block_content:98d5a37a-c1df-418a-aa15-21e0568bd202'
+settings:
+  id: 'block_content:98d5a37a-c1df-418a-aa15-21e0568bd202'
+  label: test1
+  provider: block_content
+  label_display: visible
+  cache:
+    max_age: -1
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

@@ -1,0 +1,23 @@
+uuid: 6d666389-e628-4130-bc29-4114fe012f6e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_start_date
+  module:
+    - datetime
+id: user.user.field_start_date
+field_name: field_start_date
+entity_type: user
+bundle: user
+label: 'Start date'
+description: 'When have you started sprinting?'
+required: false
+translatable: false
+default_value:
+  -
+    default_date_type: relative
+    default_date: '-1y'
+default_value_callback: ''
+settings: {  }
+field_type: datetime

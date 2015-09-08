@@ -1,0 +1,84 @@
+uuid: 8f205f32-70ab-4fb9-8c1a-2695c21f5d94
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.user.user.field_about_text
+    - field.field.user.user.field_country
+    - field.field.user.user.field_is_mentor
+    - field.field.user.user.field_is_sprinter
+    - field.field.user.user.field_sprinter_initiatives
+    - field.field.user.user.field_start_date
+    - field.field.user.user.user_picture
+  module:
+    - datetime
+    - image
+    - text
+    - user
+id: user.user.default
+targetEntityType: user
+bundle: user
+mode: default
+content:
+  account:
+    weight: 0
+    settings: {  }
+    third_party_settings: {  }
+  contact:
+    weight: 8
+    settings: {  }
+    third_party_settings: {  }
+  field_about_text:
+    weight: 6
+    settings:
+      rows: 9
+      summary_rows: 3
+      placeholder: ''
+    third_party_settings: {  }
+    type: text_textarea_with_summary
+  field_country:
+    weight: 4
+    settings: {  }
+    third_party_settings: {  }
+    type: options_select
+  field_is_mentor:
+    weight: 2
+    settings:
+      display_label: true
+    third_party_settings: {  }
+    type: boolean_checkbox
+  field_is_sprinter:
+    weight: 1
+    settings:
+      display_label: true
+    third_party_settings: {  }
+    type: boolean_checkbox
+  field_sprinter_initiatives:
+    weight: 5
+    settings:
+      match_operator: CONTAINS
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: entity_reference_autocomplete
+  field_start_date:
+    weight: 3
+    settings: {  }
+    third_party_settings: {  }
+    type: datetime_default
+  language:
+    weight: 9
+    settings: {  }
+    third_party_settings: {  }
+  timezone:
+    weight: 10
+    settings: {  }
+    third_party_settings: {  }
+  user_picture:
+    type: image_image
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+    weight: 7
+hidden: {  }

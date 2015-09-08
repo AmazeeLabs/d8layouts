@@ -1,0 +1,26 @@
+uuid: f83b1283-db3a-4fe5-af07-7f93a4a8e62d
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.sprinter.body
+    - node.type.sprinter
+  module:
+    - text
+    - user
+id: node.sprinter.teaser
+targetEntityType: node
+bundle: sprinter
+mode: teaser
+content:
+  body:
+    label: hidden
+    type: text_summary_or_trimmed
+    weight: 101
+    settings:
+      trim_length: 600
+    third_party_settings: {  }
+  links:
+    weight: 100
+hidden: {  }

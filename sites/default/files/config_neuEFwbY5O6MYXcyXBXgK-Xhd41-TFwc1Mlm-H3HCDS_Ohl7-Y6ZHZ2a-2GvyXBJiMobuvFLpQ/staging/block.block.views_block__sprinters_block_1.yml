@@ -1,0 +1,34 @@
+uuid: c4916667-929b-4f62-9e31-4913945833b5
+langcode: en
+status: false
+dependencies:
+  config:
+    - views.view.sprinters
+  module:
+    - node
+    - views
+  theme:
+    - cool_theme
+id: views_block__sprinters_block_1
+theme: cool_theme
+region: '-1'
+weight: -7
+provider: null
+plugin: 'views_block:sprinters-block_1'
+settings:
+  id: 'views_block:sprinters-block_1'
+  label: ''
+  provider: views
+  label_display: visible
+  cache:
+    max_age: -1
+  views_label: ''
+  items_per_page: none
+visibility:
+  node_type:
+    id: node_type
+    bundles:
+      initiative: initiative
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'

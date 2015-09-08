@@ -1,0 +1,19 @@
+uuid: f6f617fd-a179-4a15-b700-fc688bd0b26e
+langcode: en
+status: true
+dependencies:
+  module:
+    - datetime
+    - user
+id: user.field_start_date
+field_name: field_start_date
+entity_type: user
+type: datetime
+settings:
+  datetime_type: date
+module: datetime
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false

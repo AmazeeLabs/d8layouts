@@ -1,0 +1,21 @@
+uuid: 9440875a-6723-43dd-9200-a8a9332d2945
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_date_since_cool
+    - node.type.cool_themers
+  module:
+    - datetime
+id: node.cool_themers.field_date_since_cool
+field_name: field_date_since_cool
+entity_type: node
+bundle: cool_themers
+label: 'Date since cool'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

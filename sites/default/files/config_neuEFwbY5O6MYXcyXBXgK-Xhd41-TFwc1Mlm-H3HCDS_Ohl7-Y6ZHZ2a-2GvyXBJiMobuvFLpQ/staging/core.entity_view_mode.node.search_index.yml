@@ -1,0 +1,10 @@
+uuid: 311e190b-b1fa-49ac-9e00-a5a1944147fb
+langcode: en
+status: false
+dependencies:
+  module:
+    - node
+id: node.search_index
+label: 'Search index'
+targetEntityType: node
+cache: true

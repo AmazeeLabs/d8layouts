@@ -1,0 +1,22 @@
+uuid: 542be6f6-4b53-4548-8900-d5287729dbf5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.initiative
+  module:
+    - text
+id: node.initiative.body
+field_name: body
+entity_type: node
+bundle: initiative
+label: Body
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: true
+field_type: text_with_summary

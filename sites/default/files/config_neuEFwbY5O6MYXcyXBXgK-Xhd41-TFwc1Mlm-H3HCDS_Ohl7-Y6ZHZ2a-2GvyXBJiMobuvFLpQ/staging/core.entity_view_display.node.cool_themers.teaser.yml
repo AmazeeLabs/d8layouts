@@ -1,0 +1,32 @@
+uuid: c54aa1f4-190e-46fd-9709-9b9aae1c0adf
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.cool_themers.body
+    - field.field.node.cool_themers.field_cool_attributes
+    - field.field.node.cool_themers.field_cool_pic
+    - field.field.node.cool_themers.field_date_since_cool
+    - node.type.cool_themers
+  module:
+    - text
+    - user
+id: node.cool_themers.teaser
+targetEntityType: node
+bundle: cool_themers
+mode: teaser
+content:
+  body:
+    label: hidden
+    type: text_summary_or_trimmed
+    weight: 101
+    settings:
+      trim_length: 600
+    third_party_settings: {  }
+  links:
+    weight: 100
+hidden:
+  field_cool_attributes: true
+  field_cool_pic: true
+  field_date_since_cool: true

@@ -1,0 +1,29 @@
+uuid: 4f1b061d-de80-47b5-a837-559b4d7aaccb
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_cool_attributes
+field_name: field_cool_attributes
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: twig
+      label: Twig
+    -
+      value: html5
+      label: HTML5
+    -
+      value: css3
+      label: CSS3
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false

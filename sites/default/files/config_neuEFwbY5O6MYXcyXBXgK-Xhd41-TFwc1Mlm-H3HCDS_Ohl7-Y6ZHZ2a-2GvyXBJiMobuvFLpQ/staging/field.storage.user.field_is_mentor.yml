@@ -1,0 +1,17 @@
+uuid: dd8c20f2-63f3-41e7-bf00-ffba2936172d
+langcode: en
+status: true
+dependencies:
+  module:
+    - user
+id: user.field_is_mentor
+field_name: field_is_mentor
+entity_type: user
+type: boolean
+settings: {  }
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false

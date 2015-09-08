@@ -1,0 +1,105 @@
+uuid: fa83294f-5d8e-4613-a337-55ea110bdf2e
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.sprinters
+  module:
+    - block_page_layout
+    - views
+id: node
+label: Node
+use_admin_theme: false
+path: /disabled/node/%
+display_variants:
+  b24ff29c-ba17-4b3d-9200-a18dec64f7e3:
+    id: http_status_code
+    label: Default
+    weight: 10
+    uuid: b24ff29c-ba17-4b3d-9200-a18dec64f7e3
+    status_code: 404
+  4791bb21-a1fc-48bc-b401-1cdd2971b763:
+    selection_conditions: {  }
+    blocks:
+      2ce78424-64c7-480f-9600-f6579e96aacc:
+        id: 'entity_view:node'
+        label: Node
+        provider: page_manager
+        label_display: 0
+        cache:
+          max_age: '-1'
+        view_mode: default
+        region: left
+        weight: '0'
+        uuid: 2ce78424-64c7-480f-9600-f6579e96aacc
+        context_mapping:
+          entity: node
+      af746968-68de-4793-a003-3bf638b40c02:
+        id: 'views_block:sprinters-block_list'
+        label: ''
+        provider: views
+        label_display: visible
+        cache:
+          max_age: '-1'
+        views_label: ''
+        items_per_page: none
+        region: right
+        weight: '0'
+        uuid: af746968-68de-4793-a003-3bf638b40c02
+        context_mapping: {  }
+    id: block_page_layout
+    label: Initiative
+    uuid: 4791bb21-a1fc-48bc-b401-1cdd2971b763
+    weight: 0
+    selection_logic: and
+    page_title: Node
+    layout: layout_example_2col
+  52970ccd-96a9-471a-9c00-beb8a6e45827:
+    selection_conditions: {  }
+    blocks: {  }
+    id: block_page_layout
+    label: ''
+    uuid: 52970ccd-96a9-471a-9c00-beb8a6e45827
+    weight: 0
+    selection_logic: and
+    page_title: Node
+    layout: radix_burr_flipped
+  61e3c95d-01fc-456e-b104-4a1898289155:
+    selection_conditions: {  }
+    blocks:
+      51ca4b6f-0842-490c-be06-6b1c882e5be0:
+        id: 'views_block:sprinters-block_list'
+        label: ''
+        provider: views
+        label_display: visible
+        cache:
+          max_age: '-1'
+        views_label: ''
+        items_per_page: none
+        region: sidebar
+        weight: '0'
+        uuid: 51ca4b6f-0842-490c-be06-6b1c882e5be0
+        context_mapping: {  }
+      6c125ff9-18c6-49b0-8153-83255cff452d:
+        id: 'entity_view:node'
+        label: 'Entity view (Content)'
+        provider: page_manager
+        label_display: 0
+        cache:
+          max_age: '-1'
+        view_mode: default
+        region: contentmain
+        weight: '0'
+        uuid: 6c125ff9-18c6-49b0-8153-83255cff452d
+        context_mapping:
+          entity: node
+    id: block_page_layout
+    label: 'Initiative - Bryant Flipped'
+    uuid: 61e3c95d-01fc-456e-b104-4a1898289155
+    weight: 0
+    selection_logic: and
+    page_title: asdf
+    layout: radix_bryant_flipped
+access_logic: and
+access_conditions: {  }
+static_context: {  }

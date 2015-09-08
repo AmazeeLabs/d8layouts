@@ -1,0 +1,26 @@
+uuid: 70e1585e-f8f1-4e68-ac12-1891f2e8fefc
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.main
+  module:
+    - system
+  theme:
+    - cool_theme
+id: cool_theme_main_menu
+theme: cool_theme
+region: primary_menu
+weight: 0
+provider: null
+plugin: 'system_menu_block:main'
+settings:
+  id: 'system_menu_block:main'
+  label: 'Main navigation'
+  provider: system
+  label_display: '0'
+  cache:
+    max_age: -1
+  level: 1
+  depth: 1
+visibility: {  }

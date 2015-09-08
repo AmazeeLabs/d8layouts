@@ -1,0 +1,22 @@
+uuid: 3461d9e5-509b-46a1-8500-b26b221e2b31
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.cool_themers
+  module:
+    - text
+id: node.cool_themers.body
+field_name: body
+entity_type: node
+bundle: cool_themers
+label: Body
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: true
+field_type: text_with_summary

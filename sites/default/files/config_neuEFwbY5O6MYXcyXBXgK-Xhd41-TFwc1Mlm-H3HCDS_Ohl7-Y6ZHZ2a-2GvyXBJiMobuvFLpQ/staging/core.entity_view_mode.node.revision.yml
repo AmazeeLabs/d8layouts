@@ -1,0 +1,10 @@
+uuid: 8f1f7023-960f-445f-be00-f9079a995156
+langcode: en
+status: false
+dependencies:
+  module:
+    - node
+id: node.revision
+label: Revision
+targetEntityType: node
+cache: true

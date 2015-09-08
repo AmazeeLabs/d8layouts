@@ -1,0 +1,17 @@
+uuid: a5578481-370f-4217-8900-f45433b139b5
+langcode: en
+status: true
+dependencies:
+  module:
+    - user
+id: user.field_is_sprinter
+field_name: field_is_sprinter
+entity_type: user
+type: boolean
+settings: {  }
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false

@@ -1,0 +1,49 @@
+uuid: d3e41751-8410-481b-bb5b-9178d0995bc1
+langcode: en
+status: true
+dependencies:
+  module:
+    - block_page_layout
+id: user
+label: User
+use_admin_theme: false
+path: /disabled/user/%
+display_variants:
+  53c1976e-33a3-4b1d-b11c-28d427b75d8f:
+    selection_conditions: {  }
+    blocks:
+      d68068af-08d2-4920-b200-fefaf4ed68e7:
+        id: 'entity_view:user'
+        label: 'Entity view (User)'
+        provider: page_manager
+        label_display: 0
+        cache:
+          max_age: '-1'
+        view_mode: default
+        region: left
+        weight: '0'
+        uuid: d68068af-08d2-4920-b200-fefaf4ed68e7
+        context_mapping:
+          entity: user
+      c0746b63-02d2-4497-b762-98b4ee72bc5b:
+        id: 'views_block:initiatives_list-block_1'
+        label: ''
+        provider: views
+        label_display: visible
+        cache:
+          max_age: '-1'
+        views_label: ''
+        items_per_page: none
+        region: right
+        uuid: c0746b63-02d2-4497-b762-98b4ee72bc5b
+        context_mapping: {  }
+    id: block_page_layout
+    label: ''
+    uuid: 53c1976e-33a3-4b1d-b11c-28d427b75d8f
+    weight: 0
+    selection_logic: and
+    page_title: User
+    layout: layout_example_2col
+access_logic: and
+access_conditions: {  }
+static_context: {  }

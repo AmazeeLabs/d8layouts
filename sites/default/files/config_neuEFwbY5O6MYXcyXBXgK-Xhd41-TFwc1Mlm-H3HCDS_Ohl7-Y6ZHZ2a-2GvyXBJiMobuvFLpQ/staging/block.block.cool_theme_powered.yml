@@ -1,0 +1,22 @@
+uuid: 868d36c0-0321-4237-a206-6edbe9028b3f
+langcode: en
+status: false
+dependencies:
+  module:
+    - system
+  theme:
+    - cool_theme
+id: cool_theme_powered
+theme: cool_theme
+region: '-1'
+weight: -7
+provider: null
+plugin: system_powered_by_block
+settings:
+  id: system_powered_by_block
+  label: 'Powered by Drupal'
+  provider: system
+  label_display: '0'
+  cache:
+    max_age: -1
+visibility: {  }

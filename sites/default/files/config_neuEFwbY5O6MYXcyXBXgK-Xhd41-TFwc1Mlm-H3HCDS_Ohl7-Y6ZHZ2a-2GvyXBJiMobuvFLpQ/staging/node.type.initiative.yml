@@ -1,0 +1,17 @@
+uuid: d8cddf18-f36e-47ae-8200-a747bba7e399
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: Initiative
+type: initiative
+description: 'Initiatives are focused working groups usually started to create or improve a certain area of functionality for a the next release of Drupal.'
+help: ''
+new_revision: false
+preview_mode: 1
+display_submitted: false

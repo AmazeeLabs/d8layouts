@@ -1,0 +1,10 @@
+uuid: 72e27338-573f-404f-a706-6f2f77b2947e
+langcode: en
+status: true
+dependencies: {  }
+id: feedback
+label: 'Website feedback'
+recipients:
+  - reg@dasjo.at
+reply: ''
+weight: 0

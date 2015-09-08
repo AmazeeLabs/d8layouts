@@ -1,0 +1,22 @@
+uuid: 776b65a1-3db2-49c3-9d0f-1572e9d38023
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - cool_theme
+id: cool_theme_content
+theme: cool_theme
+region: content
+weight: -6
+provider: null
+plugin: system_main_block
+settings:
+  id: system_main_block
+  label: 'Main page content'
+  provider: system
+  label_display: '0'
+  cache:
+    max_age: -1
+visibility: {  }

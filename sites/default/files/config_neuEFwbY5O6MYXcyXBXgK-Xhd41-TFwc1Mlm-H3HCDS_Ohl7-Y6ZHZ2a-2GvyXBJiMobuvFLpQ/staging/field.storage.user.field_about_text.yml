@@ -1,0 +1,18 @@
+uuid: c0767c8a-69d1-4cdf-af53-83aa9023c1f7
+langcode: en
+status: true
+dependencies:
+  module:
+    - text
+    - user
+id: user.field_about_text
+field_name: field_about_text
+entity_type: user
+type: text_with_summary
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false

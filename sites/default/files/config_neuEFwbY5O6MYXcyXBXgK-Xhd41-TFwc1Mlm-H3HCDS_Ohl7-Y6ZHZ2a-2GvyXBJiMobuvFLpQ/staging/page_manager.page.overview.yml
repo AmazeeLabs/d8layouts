@@ -1,0 +1,59 @@
+uuid: 9cc8db08-7af0-40cb-a107-7a30d6997eb6
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.initiatives
+    - views.view.sprinters
+  module:
+    - block_page_layout
+    - views
+id: overview
+label: Overview
+use_admin_theme: null
+path: /overview
+display_variants:
+  dd0edd9a-cd88-4a6b-b124-368909bc09b4:
+    id: http_status_code
+    label: Default
+    weight: 10
+    uuid: dd0edd9a-cd88-4a6b-b124-368909bc09b4
+    status_code: 404
+  06fcd772-f46a-4f85-9c07-07148ae1ec77:
+    selection_conditions: {  }
+    blocks:
+      a8302398-995a-424c-b045-69543914ea76:
+        id: 'views_block:sprinters-block_overview'
+        label: ''
+        provider: views
+        label_display: visible
+        cache:
+          max_age: '-1'
+        views_label: ''
+        items_per_page: none
+        region: top
+        weight: '0'
+        uuid: a8302398-995a-424c-b045-69543914ea76
+        context_mapping: {  }
+      9c177039-e197-4d9d-8e00-a00fe020e009:
+        id: 'views_block:initiatives-block_overview'
+        label: ''
+        provider: views
+        label_display: visible
+        cache:
+          max_age: '-1'
+        views_label: ''
+        items_per_page: none
+        region: bottom
+        uuid: 9c177039-e197-4d9d-8e00-a00fe020e009
+        context_mapping: {  }
+    id: block_page_layout
+    label: ''
+    uuid: 06fcd772-f46a-4f85-9c07-07148ae1ec77
+    weight: 0
+    selection_logic: and
+    page_title: Overview
+    layout: layout_example_1col
+access_logic: and
+access_conditions: {  }
+static_context: {  }

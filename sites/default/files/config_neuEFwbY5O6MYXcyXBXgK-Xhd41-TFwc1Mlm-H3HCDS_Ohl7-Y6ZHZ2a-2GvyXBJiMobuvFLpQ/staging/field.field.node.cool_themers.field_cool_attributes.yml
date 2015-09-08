@@ -1,0 +1,21 @@
+uuid: 280c3690-be55-4c1e-b600-c8438eaa6ed6
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_cool_attributes
+    - node.type.cool_themers
+  module:
+    - options
+id: node.cool_themers.field_cool_attributes
+field_name: field_cool_attributes
+entity_type: node
+bundle: cool_themers
+label: 'Cool attributes'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

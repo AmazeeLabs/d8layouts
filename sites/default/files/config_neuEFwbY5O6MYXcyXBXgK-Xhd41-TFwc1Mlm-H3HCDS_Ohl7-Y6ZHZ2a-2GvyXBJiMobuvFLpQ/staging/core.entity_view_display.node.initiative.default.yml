@@ -1,0 +1,80 @@
+uuid: bd5ff016-cdc0-4823-8f51-81837dc13826
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.initiative.body
+    - field.field.node.initiative.field_image
+    - field.field.node.initiative.field_link
+    - node.type.initiative
+  module:
+    - ds
+    - image
+    - link
+    - text
+    - user
+third_party_settings:
+  ds:
+    layout:
+      id: ds_2col_fluid
+      path: modules/ds
+      library: layout_plugin/ds_2col_fluid
+      disable_css: false
+      settings:
+        classes: {  }
+        wrappers:
+          left: div
+          right: div
+        outer_wrapper: div
+        attributes: ''
+        link_attribute: ''
+        link_custom: ''
+    regions:
+      left:
+        - links
+        - body
+        - field_link
+        - field_image
+      right:
+        - 'dynamic_block_field:node-initiative_sprinters'
+    fields:
+      'dynamic_block_field:node-initiative_sprinters':
+        plugin_id: 'dynamic_block_field:node-initiative_sprinters'
+        weight: 4
+        label: hidden
+        formatter: default
+id: node.initiative.default
+targetEntityType: node
+bundle: initiative
+mode: default
+content:
+  body:
+    label: hidden
+    type: text_default
+    weight: 1
+    settings: {  }
+    third_party_settings: {  }
+  field_image:
+    weight: 3
+    label: above
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+  field_link:
+    weight: 2
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    type: link
+  links:
+    weight: 0
+    settings: {  }
+    third_party_settings: {  }
+hidden: {  }

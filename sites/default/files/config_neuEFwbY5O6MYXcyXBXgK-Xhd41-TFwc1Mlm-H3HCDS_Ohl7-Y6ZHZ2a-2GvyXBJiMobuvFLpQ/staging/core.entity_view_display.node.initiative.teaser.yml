@@ -1,0 +1,30 @@
+uuid: c9b5091d-7dc5-4ca8-b53a-583ffc8c0411
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.initiative.body
+    - field.field.node.initiative.field_image
+    - field.field.node.initiative.field_link
+    - node.type.initiative
+  module:
+    - text
+    - user
+id: node.initiative.teaser
+targetEntityType: node
+bundle: initiative
+mode: teaser
+content:
+  body:
+    label: hidden
+    type: text_summary_or_trimmed
+    weight: 101
+    settings:
+      trim_length: 600
+    third_party_settings: {  }
+  links:
+    weight: 100
+hidden:
+  field_image: true
+  field_link: true

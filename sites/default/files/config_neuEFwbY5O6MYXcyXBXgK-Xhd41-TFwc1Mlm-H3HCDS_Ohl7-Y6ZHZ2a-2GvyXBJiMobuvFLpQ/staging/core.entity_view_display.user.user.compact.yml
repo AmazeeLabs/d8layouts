@@ -1,0 +1,37 @@
+uuid: ccafce19-bf82-48af-b154-849341ac3641
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.user.compact
+    - field.field.user.user.field_about_text
+    - field.field.user.user.field_country
+    - field.field.user.user.field_is_mentor
+    - field.field.user.user.field_is_sprinter
+    - field.field.user.user.field_sprinter_initiatives
+    - field.field.user.user.field_start_date
+    - field.field.user.user.user_picture
+  module:
+    - image
+    - user
+id: user.user.compact
+targetEntityType: user
+bundle: user
+mode: compact
+content:
+  user_picture:
+    type: image
+    weight: 0
+    settings:
+      image_style: thumbnail
+      image_link: content
+    third_party_settings: {  }
+    label: hidden
+hidden:
+  field_about_text: true
+  field_country: true
+  field_is_mentor: true
+  field_is_sprinter: true
+  field_sprinter_initiatives: true
+  field_start_date: true
+  member_for: true

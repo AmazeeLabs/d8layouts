@@ -1,0 +1,22 @@
+uuid: 746bd946-0a23-4242-a400-b24b13720fbe
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.sprinter
+  module:
+    - text
+id: node.sprinter.body
+field_name: body
+entity_type: node
+bundle: sprinter
+label: Body
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: true
+field_type: text_with_summary

@@ -1,0 +1,22 @@
+uuid: ab03d290-169f-4b63-8e2f-4744d5e15bea
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - cool_theme
+id: cool_theme_breadcrumbs
+theme: cool_theme
+region: breadcrumb
+weight: 0
+provider: null
+plugin: system_breadcrumb_block
+settings:
+  id: system_breadcrumb_block
+  label: Breadcrumbs
+  provider: system
+  label_display: '0'
+  cache:
+    max_age: -1
+visibility: {  }

@@ -1,0 +1,22 @@
+uuid: f1210098-313c-4e06-9200-bb63e35f7e2e
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - cool_theme
+id: cool_theme_messages
+theme: cool_theme
+region: highlighted
+weight: 0
+provider: null
+plugin: system_messages_block
+settings:
+  id: system_messages_block
+  label: 'Status messages'
+  provider: system
+  label_display: '0'
+  cache:
+    max_age: -1
+visibility: {  }

@@ -1,0 +1,83 @@
+uuid: adff44df-b1d2-42c3-8100-f77bb2a83106
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.cool_themers.body
+    - field.field.node.cool_themers.field_cool_attributes
+    - field.field.node.cool_themers.field_cool_pic
+    - field.field.node.cool_themers.field_date_since_cool
+    - node.type.cool_themers
+  module:
+    - datetime
+    - ds
+    - image
+    - options
+    - text
+    - user
+third_party_settings:
+  ds:
+    layout:
+      id: ds_1col
+      path: modules/ds
+      library: ''
+      settings:
+        classes: {  }
+        wrappers:
+          ds_content: div
+        outer_wrapper: div
+        attributes: ''
+        link_attribute: ''
+        link_custom: ''
+    regions:
+      ds_content:
+        - node_title
+        - links
+        - body
+        - field_cool_attributes
+        - field_cool_pic
+        - field_date_since_cool
+    fields:
+      node_title:
+        plugin_id: node_title
+        weight: 0
+        label: hidden
+        formatter: default
+id: node.cool_themers.default
+targetEntityType: node
+bundle: cool_themers
+mode: default
+content:
+  body:
+    label: hidden
+    type: text_default
+    weight: 2
+    settings: {  }
+    third_party_settings: {  }
+  field_cool_attributes:
+    weight: 3
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: list_default
+  field_cool_pic:
+    weight: 4
+    label: above
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+  field_date_since_cool:
+    weight: 5
+    label: above
+    settings:
+      format_type: medium
+      timezone_override: ''
+    third_party_settings: {  }
+    type: datetime_default
+  links:
+    weight: 1
+    settings: {  }
+    third_party_settings: {  }
+hidden: {  }

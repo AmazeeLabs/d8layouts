@@ -1,0 +1,22 @@
+uuid: d5b88a96-2609-4538-be27-39f5c622c67f
+langcode: en
+status: true
+dependencies:
+  module:
+    - help
+  theme:
+    - cool_theme
+id: cool_theme_help
+theme: cool_theme
+region: help
+weight: 0
+provider: null
+plugin: help_block
+settings:
+  id: help_block
+  label: Help
+  provider: help
+  label_display: '0'
+  cache:
+    max_age: -1
+visibility: {  }

@@ -1,0 +1,22 @@
+uuid: f7fe9444-50ce-4c67-b84a-743481dc49fb
+langcode: en
+status: false
+dependencies:
+  module:
+    - user
+  theme:
+    - cool_theme
+id: cool_theme_login
+theme: cool_theme
+region: '-1'
+weight: 0
+provider: null
+plugin: user_login_block
+settings:
+  id: user_login_block
+  label: 'User login'
+  provider: user
+  label_display: visible
+  cache:
+    max_age: -1
+visibility: {  }

@@ -1,0 +1,21 @@
+uuid: dc0feb97-026d-4d9c-9d00-a6e585f76cb0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_about_text
+  module:
+    - text
+id: user.user.field_about_text
+field_name: field_about_text
+entity_type: user
+bundle: user
+label: 'About Text'
+description: 'Tell us a bit about yourself, what are you working on and why are you sprinting?'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: false
+field_type: text_with_summary

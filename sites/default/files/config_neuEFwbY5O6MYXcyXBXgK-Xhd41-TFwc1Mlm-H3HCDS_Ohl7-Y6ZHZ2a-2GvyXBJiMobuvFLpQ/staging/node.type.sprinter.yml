@@ -1,0 +1,17 @@
+uuid: 0826a713-5e27-434a-8f0d-13d40303a173
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: Sprinter
+type: sprinter
+description: 'A person who participates in a collaborative working session together with others. On-site sprinters have the joys of working together in a shared, physical environment to discuss live and help each other doing pair programming. Remote sprinters are able to work together beyond geographic borders and mainly communicate via IRC and the Drupal.org issue queue. Together they make a lot happen for Drupal 8 and open source in general. '
+help: ''
+new_revision: false
+preview_mode: 1
+display_submitted: false

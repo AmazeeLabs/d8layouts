@@ -1,0 +1,107 @@
+uuid: 25e7b501-fbb4-4371-bf02-2f0688fdb756
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.user.user.field_about_text
+    - field.field.user.user.field_country
+    - field.field.user.user.field_is_mentor
+    - field.field.user.user.field_is_sprinter
+    - field.field.user.user.field_sprinter_initiatives
+    - field.field.user.user.field_start_date
+    - field.field.user.user.user_picture
+  module:
+    - datetime
+    - ds
+    - image
+    - text
+    - user
+third_party_settings:
+  ds:
+    layout:
+      id: ds_1col
+      path: modules/ds
+      library: ''
+      disable_css: false
+      settings:
+        classes: {  }
+        wrappers:
+          ds_content: div
+        outer_wrapper: div
+        attributes: ''
+        link_attribute: ''
+        link_custom: ''
+    regions:
+      ds_content:
+        - field_is_sprinter
+        - field_is_mentor
+        - member_for
+        - field_sprinter_initiatives
+        - field_country
+        - field_start_date
+        - user_picture
+        - field_about_text
+id: user.user.default
+targetEntityType: user
+bundle: user
+mode: default
+content:
+  field_about_text:
+    weight: 5
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
+  field_country:
+    weight: 2
+    label: inline
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+  field_is_mentor:
+    weight: 0
+    label: inline
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+  field_is_sprinter:
+    type: boolean
+    weight: 0
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+  field_sprinter_initiatives:
+    weight: 1
+    label: inline
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+  field_start_date:
+    weight: 3
+    label: inline
+    settings:
+      timezone_override: ''
+      format_type: html_year
+    third_party_settings: {  }
+    type: datetime_default
+  member_for:
+    weight: 0
+    settings: {  }
+    third_party_settings: {  }
+  user_picture:
+    type: image
+    weight: 4
+    settings:
+      image_style: large
+      image_link: content
+    third_party_settings: {  }
+    label: hidden
+hidden: {  }
