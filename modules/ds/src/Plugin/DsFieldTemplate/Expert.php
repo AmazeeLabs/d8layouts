@@ -2,24 +2,24 @@
 
 /**
  * @file
- * Contains \Drupal\ds\Plugin\DsFieldLayout\Expert.
+ * Contains \Drupal\ds\Plugin\DsFieldTemplate\Expert.
  */
 
-namespace Drupal\ds\Plugin\DsFieldLayout;
+namespace Drupal\ds\Plugin\DsFieldTemplate;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Plugin for the expert field template.
  *
- * @DsFieldLayout(
+ * @DsFieldTemplate(
  *   id = "expert",
  *   title = @Translation("Expert"),
  *   theme = "theme_ds_field_expert",
  *   path = "includes/theme.inc"
  * )
  */
-class Expert extends DsFieldLayoutBase {
+class Expert extends DsFieldTemplateBase {
 
   /**
    * {@inheritdoc}

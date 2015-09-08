@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains \Drupal\ds\Plugin\DsFieldLayout\DsFieldLayoutBase.
+ * Contains \Drupal\ds\Plugin\DsFieldTemplate\DsFieldTemplateBase.
  */
 
-namespace Drupal\ds\Plugin\DsFieldLayout;
+namespace Drupal\ds\Plugin\DsFieldTemplate;
 
 use Drupal\Component\Plugin\PluginBase as ComponentPluginBase;
 use Drupal\Component\Utility\SafeMarkup;
@@ -16,7 +16,7 @@ use Drupal\ds\Ds;
 /**
  * Base class for all the ds plugins.
  */
-abstract class DsFieldLayoutBase extends ComponentPluginBase implements DsFieldLayoutInterface {
+abstract class DsFieldTemplateBase extends ComponentPluginBase implements DsFieldTemplateInterface {
 
   /**
    * Enables default sanitizing on the output of the fields.

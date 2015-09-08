@@ -205,7 +205,7 @@ function ds_extras_form_node_form_alter(&$form, FormStateInterface $form_state) 
 
       if (isset($layout_settings['layout'])) {
         $chosen_layout = $ds_layouts[$layout_settings['layout']['id']];
-        $image = (isset($chosen_layout['image']) && !empty($chosen_layout['image'])) ? drupal_get_path('module', $chosen_layout['provider']) . '/' . $chosen_layout['image'] : $fallback_image;
+        $image = (isset($chosen_layout['icon']) && !empty($chosen_layout['icon'])) ? $chosen_layout['icon'] : $fallback_image;
       }
       else {
         $image = $fallback_image;

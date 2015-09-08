@@ -6,18 +6,17 @@
  */
 
 use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Core\Entity\Display\EntityDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldConfigInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
-use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
 use Drupal\ds\Ds;
-use Drupal\ds\Plugin\DsFieldLayout\DsFieldLayoutInterface;
+use Drupal\ds\Plugin\DsFieldTemplate\DsFieldTemplateInterface;
 use Drupal\field\Entity\FieldConfig;
-use Drupal\Core\Entity\Display\EntityDisplayInterface;
 use Drupal\layout_plugin\Layout;
 
 /**
@@ -178,6 +177,15 @@ function ds_entity_view_alter(&$build, EntityInterface $entity, EntityDisplayInt
   // Render the layout.
   $layout = Layout::layoutPluginManager()->createInstance($configuration['layout']['id'], array());
   $build = $layout->build($build);
+
+  // Disable CSS files when needed
+  if ($build['#ds_configuration']['layout']['disable_css']) {
+    $library = $build['#ds_configuration']['layout']['library'];
+    $attached = $build['#attached']['library'];
+
+    $index = array_search($library, $attached);
+    unset($build['#attached']['library'][$index]);
+  }
 }
 
 /**
@@ -394,7 +402,7 @@ function ds_preprocess_field(&$variables) {
 
       // When dealing with a field template we need to massage to values before printing to prevent layout issues.
       if (isset($config['id']) && $config['id'] != 'default' && !empty($variables['ds-config']['settings'])) {
-        /** @var DsFieldLayoutInterface $layout_instance */
+        /** @var DsFieldTemplateInterface $layout_instance */
         $layout_instance = \Drupal::service('plugin.manager.ds.field.layout')->createInstance($config['id']);
         if (isset($variables['element']['#object'])) {
           $layout_instance->setEntity($variables['element']['#object']);
@@ -611,13 +619,11 @@ function ds_field_formatter_third_party_settings_form(FormatterInterface $plugin
   }
 
   if (\Drupal::config('ds.settings')->get('field_template')) {
-
     $context = array(
       'instance' => $field_definition,
       'formatter' => $plugin,
     );
     ds_field_template_settings_form($element, $form_state, $context);
-
   }
 
   return $element;

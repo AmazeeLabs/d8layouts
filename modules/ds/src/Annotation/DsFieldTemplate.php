@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\ds\Annotation\DsFieldLayout.
+ * Contains Drupal\ds\Annotation\DsFieldTemplate.
  */
 
 namespace Drupal\ds\Annotation;
@@ -10,11 +10,11 @@ namespace Drupal\ds\Annotation;
 use Drupal\Component\Annotation\Plugin;
 
 /**
- * Defines a DsFieldLayout annotation object.
+ * Defines a DsFieldTemplate annotation object.
  *
  * @Annotation
  */
-class DsFieldLayout extends Plugin {
+class DsFieldTemplate extends Plugin {
 
   /**
    * The plugin ID.

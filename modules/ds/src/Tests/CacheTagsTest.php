@@ -6,14 +6,12 @@
 
 namespace Drupal\ds\Tests;
 
-use Drupal\Core\Cache\Cache;
-
 /**
  * Tests for cache tags associated with an entity.
  *
  * @group ds
  */
-class CacheTagsTest extends BaseTest {
+class CacheTagsTest extends FastTestBase {
 
   public function testUserCacheTags() {
     // Create a node.
@@ -43,14 +41,13 @@ class CacheTagsTest extends BaseTest {
       'fields[node_link][region]' => 'footer',
       'fields[body][label]' => 'above',
       'fields[node_submitted_by][region]' => 'header',
-      'fields[comment][region]' => 'hidden',
     );
     $this->dsConfigureUI($fields);
 
     $this->drupalGet('node/' . $node->id());
     $headers = $this->drupalGetHeader('X-Drupal-Cache-Tags');
     $this->assertTrue(
-      strpos($headers,'rendered user:' . $node->getRevisionAuthor()->getOriginalId()),
+      strpos($headers,'user:' . $node->getRevisionAuthor()->getOriginalId()),
       'User cache tag found'
     );
   }

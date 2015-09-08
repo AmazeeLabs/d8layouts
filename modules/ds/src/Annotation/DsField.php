@@ -39,4 +39,12 @@ class DsField extends Plugin {
    */
   public $entity_type;
 
+  /**
+   * An array of limits for showing this field.
+   * In the format: "bundle|view_mode".
+   *
+   * @var array
+   */
+  public $ui_limit;
+
 }

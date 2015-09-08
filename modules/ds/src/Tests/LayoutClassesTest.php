@@ -14,13 +14,28 @@ use Drupal\Core\Entity\Entity\EntityViewDisplay;
  *
  * @group ds
  */
-class LayoutClassesTest extends BaseTest {
+class LayoutClassesTest extends FastTestBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setup() {
+    parent::setup();
+
+    // Set extra fields
+    \Drupal::configFactory()->getEditable('ds.extras')
+      ->set('region_to_block', TRUE)
+      ->set('fields_extra', TRUE)
+      ->set('fields_extra_list', array('node|article|ds_extras_extra_test_field', 'node|article|ds_extras_second_field'))
+      ->save();
+
+    \Drupal::entityManager()->clearCachedFieldDefinitions();
+  }
 
   /**
    * Test selecting layouts, classes, region to block and fields.
    */
   function testDStestLayouts() {
-
     // Check that the ds_3col_equal_width layout is not available (through the alter).
     $this->drupalGet('admin/structure/types/manage/article/display');
     $this->assertNoRaw('ds_3col_stacked_equal_width', 'ds_3col_stacked_equal_width not available');
@@ -47,7 +62,6 @@ class LayoutClassesTest extends BaseTest {
       'fields[node_author][region]' => 'left',
       'fields[node_links][region]' => 'left',
       'fields[body][region]' => 'right',
-      'fields[comment][region]' => 'footer',
       'fields[dynamic_token_field:node-test_field][region]' => 'left',
       'fields[dynamic_block_field:node-test_block_field][region]' => 'left',
       'fields[node_submitted_by][region]' => 'left',
@@ -77,7 +91,6 @@ class LayoutClassesTest extends BaseTest {
     $this->assertTrue(in_array('node_links', $data['regions']['left']), t('Links is in left'));
     $this->assertTrue(in_array('dynamic_block_field:node-test_block_field', $data['regions']['left']), t('Test block field is in left'));
     $this->assertTrue(in_array('body', $data['regions']['right']), t('Body is in right'));
-    $this->assertTrue(in_array('comment', $data['regions']['footer']), t('Comments is in footer'));
     $this->assertTrue(in_array('class_name_1', $data['layout']['settings']['classes']['header']), t('Class name 1 is in header'));
     $this->assertTrue(empty($data['layout']['settings']['classes']['left']), t('Left has no classes'));
     $this->assertTrue(empty($data['layout']['settings']['classes']['right']), t('Right has classes'));

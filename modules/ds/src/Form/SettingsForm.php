@@ -8,9 +8,12 @@
 namespace Drupal\ds\Form;
 
 use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteBuilderInterface;
+use Drupal\Core\Theme\Registry;
 use Drupal\Core\Url;
 use Drupal\ds\Ds;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -28,17 +31,47 @@ class SettingsForm extends ConfigFormBase {
   protected $moduleHandler;
 
   /**
+   * The theme registry used.
+   *
+   * @var \Drupal\Core\Theme\Registry
+   */
+  protected $themeRegistry;
+
+  /**
+   * The route builder.
+   *
+   * @var \Drupal\Core\Routing\RouteBuilderInterface
+   */
+  protected $routeBuilder;
+
+  /**
+   * The entity manager.
+   *
+   * @var \Drupal\Core\Entity\EntityManagerInterface
+   */
+  protected $entityManager;
+
+  /**
    * Constructs a \Drupal\ds\Form\SettingsForm object.
    *
    * @param \Drupal\Core\Config\ConfigFactory $config_factory
    *   The factory for configuration objects.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.
+   * @param \Drupal\Core\Theme\Registry $theme_registry
+   *   The theme registry used.
+   * @param \Drupal\Core\Routing\RouteBuilderInterface $route_builder
+   *   The route builder.
+   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   *   The entity manager.
    */
-  public function __construct(ConfigFactory $config_factory, ModuleHandlerInterface $module_handler) {
+  public function __construct(ConfigFactory $config_factory, ModuleHandlerInterface $module_handler, Registry $theme_registry, RouteBuilderInterface $route_builder, EntityManagerInterface $entity_manager) {
     parent::__construct($config_factory);
 
     $this->moduleHandler = $module_handler;
+    $this->themeRegistry = $theme_registry;
+    $this->routeBuilder = $route_builder;
+    $this->entityManager = $entity_manager;
   }
 
   /**
@@ -47,7 +80,10 @@ class SettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
-      $container->get('module_handler')
+      $container->get('module_handler'),
+      $container->get('theme.registry'),
+      $container->get('router.builder'),
+      $container->get('entity.manager')
     );
   }
 
@@ -130,10 +166,10 @@ class SettingsForm extends ConfigFormBase {
       ->set('ft-show-colon', $values['fs1']['ft-show-colon'])
       ->save();
 
-    \Drupal::entityManager()->clearCachedFieldDefinitions();
+    $this->entityManager->clearCachedFieldDefinitions();
     $this->moduleHandler->resetImplementations();
-    \Drupal::service('theme.registry')->reset();
-    \Drupal::service('router.builder')->setRebuildNeeded();
+    $this->themeRegistry->reset();
+    $this->routeBuilder->setRebuildNeeded();
   }
 
   /**

@@ -48,6 +48,9 @@ abstract class Field extends DsFieldBase {
       /** @var $entity EntityInterface */
       $entity = $this->entity();
       $url_info = $entity->urlInfo();
+      if (!empty($config['link class'])) {
+        $url_info->setOption('attributes', array('class' => explode(' ', $config['link class'])));
+      }
       $output = \Drupal::l($output, $url_info);
     }
     else {

@@ -34,6 +34,9 @@ ds.field_plugin.link:
     link text:
       type: string
       label: 'Link text'
+    link class:
+      type: string
+      label: 'Link class'
     wrapper:
       type: string
       label: 'Wrapper of the field'

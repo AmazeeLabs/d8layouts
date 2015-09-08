@@ -245,7 +245,7 @@ function ds_extras_block_submit($form, FormStateInterface $form_state) {
     $region_removal_status = $form_state->getValue('remove_block_region');
 
     foreach ($region_removal_status as $key => $value) {
-      if ($value != 0 && $key == $value) {
+      if ($value !== 0 && $key == $value) {
         unset($region_blocks[$key]);
 
         // Make sure there is no active block instance for this ds block region.

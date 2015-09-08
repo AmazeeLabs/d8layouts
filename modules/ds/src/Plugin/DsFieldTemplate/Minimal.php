@@ -2,24 +2,24 @@
 
 /**
  * @file
- * Contains \Drupal\ds\Plugin\DsFieldLayout\Minimal.
+ * Contains \Drupal\ds\Plugin\DsFieldTemplate\Minimal.
  */
 
-namespace Drupal\ds\Plugin\DsFieldLayout;
+namespace Drupal\ds\Plugin\DsFieldTemplate;
 
 use Drupal\ds\Ds;
 
 /**
  * Plugin for the minimal field template.
  *
- * @DsFieldLayout(
+ * @DsFieldTemplate(
  *   id = "minimal",
  *   title = @Translation("Minimal"),
  *   theme = "theme_ds_field_minimal",
  *   path = "includes/theme.inc"
  * )
  */
-class Minimal extends DsFieldLayoutBase {
+class Minimal extends DsFieldTemplateBase {
 
   /**
    * {@inheritdoc}

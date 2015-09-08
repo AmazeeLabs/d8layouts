@@ -12,18 +12,6 @@ use Drupal\Core\Render\Element;
  * Implements hook_install().
  */
 function ds_test_install() {
-
-  \Drupal::configFactory()->getEditable('ds.settings')
-    ->set('field_template', TRUE)
-    ->save();
-
-  \Drupal::configFactory()->getEditable('ds.extras')
-    ->set('region_to_block', TRUE)
-    ->set('switch_view_mode', TRUE)
-    ->set('fields_extra', TRUE)
-    ->set('fields_extra_list', array('node|article|ds_extras_extra_test_field', 'node|article|ds_extras_second_field'))
-    ->save();
-
   module_set_weight('ds_test', 3);
 }
 
@@ -31,6 +19,7 @@ function ds_test_install() {
  * Helper function to return the tag name basid on tid.
  */
 function ds_test_get_tag_name($raw_value, $object) {
+  debug($raw_value);
   $term = entity_load('taxonomy_term', $raw_value);
   return $term->name->value;
 }
@@ -61,7 +50,7 @@ function ds_test_entity_extra_field_info() {
 /**
  * Implements hook_entity_view().
  */
-function ds_entity_view(array &$build, \Drupal\Core\Entity\EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display, $view_mode, $langcode) {
+function ds_test_entity_view(array &$build, \Drupal\Core\Entity\EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display, $view_mode, $langcode) {
   $build['ds_extras_extra_test_field'] = array(
     '#markup' => 'This is an extra field made available through "Extra fields" functionality.',
     '#weight' => 10,

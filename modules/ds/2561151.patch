@@ -1,0 +1,13 @@
+diff --git a/src/Ds.php b/src/Ds.php
+index a8a008b..e8e6496 100644
+--- a/src/Ds.php
++++ b/src/Ds.php
+@@ -93,7 +93,7 @@ class Ds {
+       $layoutManager = Layout::layoutPluginManager();
+       $all_layouts = $layoutManager->getDefinitions();
+       foreach ($all_layouts as $key => $info) {
+-        if ($info['category'] == 'Display Suite') {
++        if (isset($info['category']) && $info['category'] == 'Display Suite') {
+           $layouts[$key] = $info;
+         }
+       }

@@ -148,7 +148,7 @@ class EmergencyForm extends ConfigFormBase {
       $region_blocks = $this->config('ds.extras')->get('region_blocks');
       $remove = $form_state->getValue('remove_block_region');
       foreach ($remove as $key => $value) {
-        if ($value != 0 && $key == $value) {
+        if ($value !== 0 && $key == $value) {
           $save = TRUE;
 
           // Make sure there is no active block instance for this ds block region.

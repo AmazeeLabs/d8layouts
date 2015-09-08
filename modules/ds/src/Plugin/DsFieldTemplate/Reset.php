@@ -2,24 +2,24 @@
 
 /**
  * @file
- * Contains \Drupal\ds\Plugin\DsFieldLayout\Minimal.
+ * Contains \Drupal\ds\Plugin\DsFieldTemplate\Minimal.
  */
 
-namespace Drupal\ds\Plugin\DsFieldLayout;
+namespace Drupal\ds\Plugin\DsFieldTemplate;
 
 use Drupal\Component\Utility\SafeMarkup;
 
 /**
  * Plugin for the reset field template.
  *
- * @DsFieldLayout(
+ * @DsFieldTemplate(
  *   id = "reset",
  *   title = @Translation("Full reset"),
  *   theme = "theme_ds_field_reset",
  *   path = "includes/theme.inc"
  * )
  */
-class Reset extends DsFieldLayoutBase {
+class Reset extends DsFieldTemplateBase {
 
   /**
    * {@inheritdoc}

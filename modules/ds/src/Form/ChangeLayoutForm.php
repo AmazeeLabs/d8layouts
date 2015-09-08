@@ -163,8 +163,8 @@ class ChangeLayoutForm extends FormBase {
     // Create new third party settings
     $third_party_settings = $old_layout;
     $third_party_settings['layout']['id'] = $new_layout_key;
-    if (!empty($new_layout['css'])) {
-      $third_party_settings['layout']['css'] = $new_layout['css'];
+    if (!empty($new_layout['library'])) {
+      $third_party_settings['layout']['library'] = $new_layout['library'];
     }
     $third_party_settings['layout']['path'] = drupal_get_path('module', $new_layout['provider']);
     unset($third_party_settings['regions']);
@@ -185,14 +185,8 @@ class ChangeLayoutForm extends FormBase {
     // Save configuration.
     /** @var $entity_display EntityDisplayInterface*/
     $entity_display = entity_load('entity_view_display', $entity_type . '.' . $bundle . '.' . $display_mode);
-    if (!empty($third_party_settings['layout'])) {
-      $entity_display->setThirdPartySetting('ds', 'layout', $third_party_settings['layout']);
-    }
-    if (!empty($third_party_settings['regions'])) {
-      $entity_display->setThirdPartySetting('ds', 'regions', $third_party_settings['regions']);
-    }
-    if (!empty($third_party_settings['fields'])) {
-      $entity_display->setThirdPartySetting('ds', 'fields', $third_party_settings['fields']);
+    foreach (array_keys($third_party_settings) as $key) {
+      $entity_display->setThirdPartySetting('ds', $key, $third_party_settings[$key]);
     }
     $entity_display->save();
 

@@ -84,13 +84,4 @@ class DynamicCopyField extends DsFieldBase {
     return $this->field_instance->formatters();
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function isAllowed() {
-    $definition = $this->getPluginDefinition();
-
-    return DsFieldBase::dynamicFieldIsAllowed($definition, $this->bundle(), $this->viewMode());
-  }
-
 }

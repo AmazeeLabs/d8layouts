@@ -2,17 +2,17 @@
 
 /**
  * @file
- * Contains \Drupal\ds\Plugin\DsFieldLayout\DsFieldLayoutInterface.
+ * Contains \Drupal\ds\Plugin\DsFieldTemplate\DsFieldTemplateInterface.
  */
 
-namespace Drupal\ds\Plugin\DsFieldLayout;
+namespace Drupal\ds\Plugin\DsFieldTemplate;
 
 use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Base class for all the ds plugins.
  */
-interface DsFieldLayoutInterface {
+interface DsFieldTemplateInterface {
 
   /**
    * Lets you add you add additional form element for your layout.

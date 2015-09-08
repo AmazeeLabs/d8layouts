@@ -24,6 +24,12 @@ abstract class Link extends Field {
       '#title' => 'Link text',
       '#default_value' => $config['link text'],
     );
+    $form['link class'] = array(
+      '#type' => 'textfield',
+      '#title' => 'Link class',
+      '#default_value' => $config['link class'],
+      'description' => t('Put a class on the link. Eg: btn btn-default'),
+    );
     $form['wrapper'] = array(
       '#type' => 'textfield',
       '#title' => 'Wrapper',
@@ -48,6 +54,9 @@ abstract class Link extends Field {
 
     $summary = array();
     $summary[] = 'Link text: ' . $config['link text'];
+    if (!empty($config['link class'])) {
+      $summary[] = 'Link class: ' . $config['link class'];
+    }
     if (!empty($config['wrapper'])) {
       $summary[] = 'Wrapper: ' . $config['wrapper'];
     }
@@ -65,6 +74,7 @@ abstract class Link extends Field {
 
     $configuration = array(
       'link text' => 'Read more',
+      'link class' => '',
       'wrapper' => '',
       'class' => '',
       'link' => 1,

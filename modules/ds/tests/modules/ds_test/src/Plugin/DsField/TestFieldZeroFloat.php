@@ -10,11 +10,11 @@ namespace Drupal\ds_test\Plugin\DsField;
 use Drupal\ds\Plugin\DsField\DsFieldBase;
 
 /**
- * Test code field that returns zero as a floating point number.
+ * Test field plugin that returns zero as a floating point number.
  *
  * @DsField(
  *   id = "test_field_zero_float",
- *   title = @Translation("Test code field that returns zero as a floating point number"),
+ *   title = @Translation("Test field plugin that returns zero as a floating point number"),
  *   entity_type = "node"
  * )
  */

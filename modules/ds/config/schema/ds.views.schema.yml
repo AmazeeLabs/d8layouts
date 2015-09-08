@@ -3,11 +3,8 @@ views.row.ds_entity:*:
   label: 'Display suite entity options'
 
 ds_views_entity_row:
-  type: views_row
+  type: views_entity_row
   mapping:
-    view_mode:
-      type: string
-      label: 'View mode'
     alternating_fieldset:
       type: mapping
       label: 'Alternating settings'
@@ -48,30 +45,30 @@ ds_views_entity_row:
         item_9:
           type: string
           label: 'Display mode of type 10'
-      grouping_fieldset:
-        type: mapping
-        label: 'Grouping settings'
-        mapping:
-          group:
-            type: boolean
-            label: 'Grouping enabled'
-          group_field:
-            type: string
-            label: 'Grouping based on a field'
-          group_field_function:
-            type: string
-            label: 'Process function for grouping field'
-      advanced_fieldset:
-        type: mapping
-        label: 'Advanced settings'
-        mapping:
-          advanced:
-            type: boolean
-            label: 'Advanced mode enabled'
-      switch_fieldset:
-        type: mapping
-        label: 'Use view mode of display settings'
-        mapping:
-          switch:
-            type: boolean
-            label: 'Use the alternative view mode selected in the display settings tab.'
+    grouping_fieldset:
+      type: mapping
+      label: 'Grouping settings'
+      mapping:
+        group:
+          type: boolean
+          label: 'Grouping enabled'
+        group_field:
+          type: string
+          label: 'Grouping based on a field'
+        group_field_function:
+          type: string
+          label: 'Process function for grouping field'
+    advanced_fieldset:
+      type: mapping
+      label: 'Advanced settings'
+      mapping:
+        advanced:
+          type: boolean
+          label: 'Advanced mode enabled'
+    switch_fieldset:
+      type: mapping
+      label: 'Use view mode of display settings'
+      mapping:
+        switch:
+          type: boolean
+          label: 'Use the alternative view mode selected in the display settings tab.'

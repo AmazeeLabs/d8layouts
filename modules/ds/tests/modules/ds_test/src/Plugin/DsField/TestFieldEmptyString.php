@@ -10,11 +10,11 @@ namespace Drupal\ds_test\Plugin\DsField;
 use Drupal\ds\Plugin\DsField\DsFieldBase;
 
 /**
- * Test code field that returns an empty string.
+ * Test field plugin that returns an empty string.
  *
  * @DsField(
  *   id = "test_field_empty_string",
- *   title = @Translation("Test code field that returns an empty string"),
+ *   title = @Translation("Test field plugin that returns an empty string"),
  *   entity_type = "node"
  * )
  */

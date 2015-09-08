@@ -4,8 +4,6 @@ status: true
 dependencies:
   config:
     - field.field.node.article.body
-    - field.field.node.article.comment
-    - field.field.node.article.field_image
     - field.field.node.article.field_tags
     - node.type.article
   module:
@@ -18,6 +16,7 @@ third_party_settings:
       id: ds_2col
       path: modules/ds
       library: ds/layout.2col
+      disable_css: FALSE
       settings:
         classes: {  }
         wrappers:
@@ -74,7 +73,5 @@ content:
               - ''
     label: hidden
 hidden:
-  comment: true
-  field_image: true
   field_tags: true
   links: true

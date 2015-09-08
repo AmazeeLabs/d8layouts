@@ -5,4 +5,3 @@ package: 'Display Suite'
 type: module
 dependencies:
   - ds_extras
-hidden: TRUE

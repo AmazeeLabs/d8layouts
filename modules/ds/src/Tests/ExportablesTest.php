@@ -7,14 +7,13 @@
 
 namespace Drupal\ds\Tests;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
-use Drupal\Core\Url;
 
 /**
  * Tests for exportables in Display Suite.
  *
  * @group ds
  */
-class ExportablesTest extends BaseTest {
+class ExportablesTest extends FastTestBase {
 
   /**
    * Enables the exportables module.
@@ -30,7 +29,11 @@ class ExportablesTest extends BaseTest {
   function testDSExportablesLayoutFieldsettings() {
     $this->dsExportablesSetup();
 
+    // Look for default custom field.
+    $this->drupalGet('admin/structure/ds/fields');
+    $this->assertText('Exportable field');
     $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertText('Exportable field');
 
     $settings = array(
       'type' => 'article',
@@ -42,8 +45,8 @@ class ExportablesTest extends BaseTest {
     $this->assertRaw('group-right', 'Right region found');
     $this->assertNoRaw('group-header', 'No header region found');
     $this->assertNoRaw('group-footer', 'No footer region found');
-    $this->assertRaw('<h3><a href="'. Url::fromRoute('entity.node.canonical', ['node' => 1])->toString() . '">Exportable</a></h3>', t('Default title with h3 found'));
-    $this->assertRaw('<a href="' . Url::fromRoute('entity.node.canonical', ['node' => 1])->toString() . '">Read more</a>', t('Default read more found'));
+    $this->assertRaw('<h3><a href="/node/1" hreflang="en">Exportable</a></h3>', t('Default title with h3 found'));
+    $this->assertRaw('<a href="/node/1" hreflang="en">Read more</a>', t('Default read more found'));
 
     // Override default layout.
     $layout = array(
@@ -64,7 +67,6 @@ class ExportablesTest extends BaseTest {
       'fields[node_author][region]' => 'left',
       'fields[node_link][region]' => 'left',
       'fields[body][region]' => 'right',
-      'fields[comment][region]' => 'footer',
     );
 
     $this->dsSelectLayout($layout, $assert);
@@ -77,14 +79,4 @@ class ExportablesTest extends BaseTest {
     $this->assertRaw('group-footer', 'Footer region found');
   }
 
-  // Test custom field config.
-  function testDSExportablesCustomFields() {
-    $this->dsExportablesSetup();
-
-    // Look for default custom field.
-    $this->drupalGet('admin/structure/ds/fields');
-    $this->assertText('Exportable field');
-    $this->drupalGet('admin/structure/types/manage/article/display');
-    $this->assertText('Exportable field');
-  }
 }

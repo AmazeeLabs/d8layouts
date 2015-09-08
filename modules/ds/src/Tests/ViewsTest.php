@@ -10,17 +10,20 @@ namespace Drupal\ds\Tests;
 use Drupal\views\Tests\ViewTestData;
 use Drupal\views\ViewExecutable;
 
+
 /**
  * Tests for Display Suite Views integration.
  *
  * @group ds
  */
-class ViewsTest extends BaseTest {
+class ViewsTest extends FastTestBase {
 
   /**
-   * Disabled config schema checking temporarily until all errors are resolved.
+   * Modules to install.
+   *
+   * @var array
    */
-  protected $strictConfigSchema = FALSE;
+  public static $modules = array('node', 'field_ui', 'taxonomy', 'block', 'ds', 'ds_test', 'layout_plugin', 'views', 'views_ui');
 
   /**
    * Views used by this test.
@@ -44,12 +47,14 @@ class ViewsTest extends BaseTest {
    * Test views integration.
    */
   function testDSViews() {
+    $tag1 = $this->createTerm($this->vocabulary);
+    $tag2 = $this->createTerm($this->vocabulary);
 
     $edit_tag_1 = array(
-      'field_tags[target_id]' => 'Tag 1',
+      'field_tags[0][target_id]' => $tag1->getName(),
     );
     $edit_tag_2 = array(
-      'field_tags[target_id]' => 'Tag 2',
+      'field_tags[0][target_id]' => $tag2->getName(),
     );
 
     // Create 3 nodes.
@@ -59,21 +64,21 @@ class ViewsTest extends BaseTest {
       'created' => REQUEST_TIME,
     );
     $node_1 = $this->drupalCreateNode($settings_1);
-    $this->drupalPostForm('node/' . $node_1->id() . '/edit', $edit_tag_1, t('Save and keep published'));
+    $this->drupalPostForm('node/' . $node_1->id() . '/edit', $edit_tag_1, t('Save'));
     $settings_2 = array(
       'type' => 'article',
       'title' => 'Article 2',
       'created' => REQUEST_TIME + 3600,
     );
     $node_2 = $this->drupalCreateNode($settings_2);
-    $this->drupalPostForm('node/' . $node_2->id() . '/edit', $edit_tag_1, t('Save and keep published'));
+    $this->drupalPostForm('node/' . $node_2->id() . '/edit', $edit_tag_1, t('Save'));
     $settings_3 = array(
       'type' => 'article',
       'title' => 'Article 3',
       'created' => REQUEST_TIME + 7200,
     );
     $node_3 = $this->drupalCreateNode($settings_3);
-    $this->drupalPostForm('node/' . $node_3->id() . '/edit', $edit_tag_2, t('Save and keep published'));
+    $this->drupalPostForm('node/' . $node_3->id() . '/edit', $edit_tag_2, t('Save'));
 
     // Configure teaser and full layout.
     $layout = array(
@@ -148,8 +153,8 @@ class ViewsTest extends BaseTest {
     $this->assertRaw('Article 1');
     $this->assertRaw('Article 2');
     $this->assertRaw('Article 3');
-    $this->assertRaw('<h2 class="grouping-title">Tag 1</h2>');
-    $this->assertRaw('<h2 class="grouping-title">Tag 2</h2>');
+    $this->assertRaw('<h2 class="grouping-title">' . $tag1->getName() . '</h2>');
+    $this->assertRaw('<h2 class="grouping-title">' . $tag2->getName() . '</h2>');
 
     // Get advanced function view.
     $this->drupalGet('ds-testing-5');

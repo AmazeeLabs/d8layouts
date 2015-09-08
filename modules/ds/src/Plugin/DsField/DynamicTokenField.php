@@ -35,11 +35,4 @@ class DynamicTokenField extends TokenBase {
     return $definition['properties']['content']['format'];
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function isAllowed() {
-    $definition = $this->getPluginDefinition();
-    return DsFieldBase::dynamicFieldIsAllowed($definition, $this->bundle(), $this->viewMode());
-  }
 }
