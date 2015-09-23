@@ -1480,6 +1480,9 @@ function template_preprocess_field(&$variables, $hook) {
   // readers.
   $variables['label'] = $element['#title'];
 
+  if (!isset($element['#items'])) {
+    return;
+  }
   $variables['multiple'] = $element['#items']->getFieldDefinition()->getFieldStorageDefinition()->isMultiple();
 
   static $default_attributes;
