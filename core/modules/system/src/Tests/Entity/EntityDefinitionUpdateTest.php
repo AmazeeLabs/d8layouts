@@ -107,7 +107,7 @@ class EntityDefinitionUpdateTest extends EntityUnitTestBase {
         t('Update the %entity_type entity type.', array('%entity_type' => $this->entityManager->getDefinition('entity_test_update')->getLabel())),
       ),
     );
-    $this->assertIdentical($this->entityDefinitionUpdateManager->getChangeSummary(), $expected); //, 'EntityDefinitionUpdateManager reports the expected change summary.');
+    $this->assertEqual($this->entityDefinitionUpdateManager->getChangeSummary(), $expected); //, 'EntityDefinitionUpdateManager reports the expected change summary.');
 
     // Run the update and ensure the revision table is created.
     $this->entityDefinitionUpdateManager->applyUpdates();
@@ -146,7 +146,7 @@ class EntityDefinitionUpdateTest extends EntityUnitTestBase {
         t('Create the %field_name field.', array('%field_name' => t('A new base field'))),
       ),
     );
-    $this->assertIdentical($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
+    $this->assertEqual($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
     $this->entityDefinitionUpdateManager->applyUpdates();
     $this->assertTrue($this->database->schema()->fieldExists('entity_test_update', 'new_base_field'), 'Column created in shared table for new_base_field.');
 
@@ -159,7 +159,7 @@ class EntityDefinitionUpdateTest extends EntityUnitTestBase {
         t('Update the %field_name field.', array('%field_name' => t('A new base field'))),
       ),
     );
-    $this->assertIdentical($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
+    $this->assertEqual($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
     $this->entityDefinitionUpdateManager->applyUpdates();
     $this->assertTrue($this->database->schema()->indexExists('entity_test_update', 'entity_test_update_field__new_base_field'), 'Index created.');
 
@@ -172,7 +172,7 @@ class EntityDefinitionUpdateTest extends EntityUnitTestBase {
         t('Update the %field_name field.', array('%field_name' => t('A new base field'))),
       ),
     );
-    $this->assertIdentical($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
+    $this->assertEqual($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
     $this->entityDefinitionUpdateManager->applyUpdates();
     $this->assertFalse($this->database->schema()->indexExists('entity_test_update', 'entity_test_update_field__new_base_field'), 'Index deleted.');
 
@@ -186,7 +186,7 @@ class EntityDefinitionUpdateTest extends EntityUnitTestBase {
         t('Update the %field_name field.', array('%field_name' => t('A new base field'))),
       ),
     );
-    $this->assertIdentical($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
+    $this->assertEqual($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
     $this->entityDefinitionUpdateManager->applyUpdates();
     $this->assertFalse($this->database->schema()->fieldExists('entity_test_update', 'new_base_field'), 'Original column deleted in shared table for new_base_field.');
     $this->assertTrue($this->database->schema()->fieldExists('entity_test_update', 'new_base_field__value'), 'Value column created in shared table for new_base_field.');
@@ -201,7 +201,7 @@ class EntityDefinitionUpdateTest extends EntityUnitTestBase {
         t('Delete the %field_name field.', array('%field_name' => t('A new base field'))),
       ),
     );
-    $this->assertIdentical($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
+    $this->assertEqual($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
     $this->entityDefinitionUpdateManager->applyUpdates();
     $this->assertFalse($this->database->schema()->fieldExists('entity_test_update', 'new_base_field_value'), 'Value column deleted from shared table for new_base_field.');
     $this->assertFalse($this->database->schema()->fieldExists('entity_test_update', 'new_base_field_format'), 'Format column deleted from shared table for new_base_field.');
@@ -220,7 +220,7 @@ class EntityDefinitionUpdateTest extends EntityUnitTestBase {
         t('Create the %field_name field.', array('%field_name' => t('A new bundle field'))),
       ),
     );
-    $this->assertIdentical($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
+    $this->assertEqual($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
     $this->entityDefinitionUpdateManager->applyUpdates();
     $this->assertTrue($this->database->schema()->tableExists('entity_test_update__new_bundle_field'), 'Dedicated table created for new_bundle_field.');
 
@@ -234,7 +234,7 @@ class EntityDefinitionUpdateTest extends EntityUnitTestBase {
         t('Update the %field_name field.', array('%field_name' => t('A new bundle field'))),
       ),
     );
-    $this->assertIdentical($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
+    $this->assertEqual($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
     $this->entityDefinitionUpdateManager->applyUpdates();
     $this->assertTrue($this->database->schema()->fieldExists('entity_test_update__new_bundle_field', 'new_bundle_field_format'), 'Format column created in dedicated table for new_base_field.');
 
@@ -247,7 +247,7 @@ class EntityDefinitionUpdateTest extends EntityUnitTestBase {
         t('Delete the %field_name field.', array('%field_name' => t('A new bundle field'))),
       ),
     );
-    $this->assertIdentical($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
+    $this->assertEqual($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
     $this->entityDefinitionUpdateManager->applyUpdates();
     $this->assertFalse($this->database->schema()->tableExists('entity_test_update__new_bundle_field'), 'Dedicated table deleted for new_bundle_field.');
   }
@@ -489,7 +489,7 @@ class EntityDefinitionUpdateTest extends EntityUnitTestBase {
         t('Update the %entity_type entity type.', array('%entity_type' => $this->entityManager->getDefinition('entity_test_update')->getLabel())),
       ),
     );
-    $this->assertIdentical($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
+    $this->assertEqual($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
 
     // Run the update and ensure the new index is created.
     $this->entityDefinitionUpdateManager->applyUpdates();
@@ -504,11 +504,23 @@ class EntityDefinitionUpdateTest extends EntityUnitTestBase {
         t('Update the %entity_type entity type.', array('%entity_type' => $this->entityManager->getDefinition('entity_test_update')->getLabel())),
       ),
     );
-    $this->assertIdentical($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
+    $this->assertEqual($this->entityDefinitionUpdateManager->getChangeSummary(), $expected, 'EntityDefinitionUpdateManager reports the expected change summary.');
 
     // Run the update and ensure the index is deleted.
     $this->entityDefinitionUpdateManager->applyUpdates();
     $this->assertFalse($this->database->schema()->indexExists('entity_test_update', 'entity_test_update__new_index'), 'Index deleted.');
+
+    // Test that composite indexes are handled correctly when dropping and
+    // re-creating one of their columns.
+    $this->addEntityIndex();
+    $this->entityDefinitionUpdateManager->applyUpdates();
+    $storage_definition = $this->entityDefinitionUpdateManager->getFieldStorageDefinition('name', 'entity_test_update');
+    $this->entityDefinitionUpdateManager->updateFieldStorageDefinition($storage_definition);
+    $this->assertTrue($this->database->schema()->indexExists('entity_test_update', 'entity_test_update__new_index'), 'Index created.');
+    $this->entityDefinitionUpdateManager->uninstallFieldStorageDefinition($storage_definition);
+    $this->assertFalse($this->database->schema()->indexExists('entity_test_update', 'entity_test_update__new_index'), 'Index deleted.');
+    $this->entityDefinitionUpdateManager->installFieldStorageDefinition('name', 'entity_test_update', 'entity_test', $storage_definition);
+    $this->assertTrue($this->database->schema()->indexExists('entity_test_update', 'entity_test_update__new_index'), 'Index created again.');
   }
 
   /**
@@ -607,7 +619,7 @@ class EntityDefinitionUpdateTest extends EntityUnitTestBase {
   }
 
   /**
-   * Tests ::applyEntityUpdate() and ::applyFieldUpdate().
+   * Tests applying single updates.
    */
   public function testSingleActionCalls() {
     $db_schema = $this->database->schema();
@@ -656,9 +668,9 @@ class EntityDefinitionUpdateTest extends EntityUnitTestBase {
     $this->entityDefinitionUpdateManager->installFieldStorageDefinition('new_base_field', 'entity_test_update', 'entity_test', $storage_definition);
     $this->assertTrue($db_schema->fieldExists('entity_test_update', 'new_base_field'), "New field 'new_base_field' has been created on the 'entity_test_update' table.");
 
-    // Ensure that installing an existing entity type is a no-op.
+    // Ensure that installing an existing field is a no-op.
     $this->entityDefinitionUpdateManager->installFieldStorageDefinition('new_base_field', 'entity_test_update', 'entity_test', $storage_definition);
-    $this->assertTrue($db_schema->fieldExists('entity_test_update', 'new_base_field'), 'Installing an existing entity type is a no-op');
+    $this->assertTrue($db_schema->fieldExists('entity_test_update', 'new_base_field'), 'Installing an existing field is a no-op');
 
     // Update an existing field schema.
     $this->modifyBaseField();

@@ -84,8 +84,8 @@ function template_preprocess_update_report(&$variables) {
     'core' => t('Drupal core'),
     'module' => t('Modules'),
     'theme' => t('Themes'),
-    'module-disabled' => t('Disabled modules'),
-    'theme-disabled' => t('Disabled themes'),
+    'module-disabled' => t('Uninstalled modules'),
+    'theme-disabled' => t('Uninstalled themes'),
   );
 
   $variables['project_types'] = array();
@@ -274,7 +274,7 @@ function template_preprocess_update_project_status(&$variables) {
     case UPDATE_NOT_SECURE:
     case UPDATE_REVOKED:
     case UPDATE_NOT_SUPPORTED:
-      $uri = 'core/misc/icons/ea2800/error.svg';
+      $uri = 'core/misc/icons/e32700/error.svg';
       $text = t('Error');
       break;
     case UPDATE_NOT_CHECKED:

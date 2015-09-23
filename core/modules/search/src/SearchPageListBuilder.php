@@ -121,7 +121,7 @@ class SearchPageListBuilder extends DraggableListBuilder implements FormInterfac
    */
   public function buildRow(EntityInterface $entity) {
     /** @var $entity \Drupal\search\SearchPageInterface */
-    $row['label'] = $this->getLabel($entity);
+    $row['label'] = $entity->label();
     $row['url']['#markup'] = 'search/' . $entity->getPath();
     // If the search page is active, link to it.
     if ($entity->status()) {
@@ -210,7 +210,7 @@ class SearchPageListBuilder extends DraggableListBuilder implements FormInterfac
       '#title' => $this->t('Number of items to index per cron run'),
       '#default_value' => $search_settings->get('index.cron_limit'),
       '#options' => $items,
-      '#description' => $this->t('The maximum number of items indexed in each pass of a <a href="@cron">cron maintenance task</a>. If necessary, reduce the number of items to prevent timeouts and memory errors while indexing. Some search page types may have their own setting for this.', array('@cron' => \Drupal::url('system.status'))),
+      '#description' => $this->t('The maximum number of items indexed in each pass of a <a href=":cron">cron maintenance task</a>. If necessary, reduce the number of items to prevent timeouts and memory errors while indexing. Some search page types may have their own setting for this.', array(':cron' => \Drupal::url('system.status'))),
     );
     // Indexing settings:
     $form['indexing_settings'] = array(

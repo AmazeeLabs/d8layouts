@@ -20,6 +20,7 @@ use Drupal\Core\Template\Attribute;
 use Drupal\Core\Theme\ThemeSettings;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Render\Element;
+use Drupal\Core\Render\SafeString;
 
 /**
  * @defgroup content_flags Content markers
@@ -325,14 +326,11 @@ function theme_get_setting($setting_name, $theme = NULL) {
       }
 
       // Generate the path to the logo image.
-      if ($cache[$theme]->get('features.logo')) {
-        $logo_path = $cache[$theme]->get('logo.path');
-        if ($cache[$theme]->get('logo.use_default')) {
-          $cache[$theme]->set('logo.url', file_create_url($theme_object->getPath() . '/logo.svg'));
-        }
-        elseif ($logo_path) {
-          $cache[$theme]->set('logo.url', file_create_url($logo_path));
-        }
+      if ($cache[$theme]->get('logo.use_default')) {
+        $cache[$theme]->set('logo.url', file_create_url($theme_object->getPath() . '/logo.svg'));
+      }
+      elseif ($logo_path = $cache[$theme]->get('logo.path')) {
+        $cache[$theme]->set('logo.url', file_create_url($logo_path));
       }
 
       // Generate the path to the favicon.
@@ -1241,7 +1239,8 @@ function template_preprocess_html(&$variables) {
   }
   if (!empty($variables['page']['#title'])) {
     $head_title = array(
-      'title' => trim(strip_tags($variables['page']['#title'])),
+      // Marking the title as safe since it has had the tags stripped.
+      'title' => SafeString::create(trim(strip_tags($variables['page']['#title']))),
       'name' => $site_config->get('name'),
     );
   }
@@ -1267,19 +1266,15 @@ function template_preprocess_html(&$variables) {
   // Create placeholder strings for these keys.
   // @see \Drupal\Core\Render\HtmlResponseSubscriber
   $types = [
-    'styles',
-    'scripts',
-    'scripts_bottom',
-    'head',
+    'styles' => 'css',
+    'scripts' => 'js',
+    'scripts_bottom' => 'js-bottom',
+    'head' => 'head',
   ];
-  $token = Crypt::randomBytesBase64(55);
-  foreach ($types as $type) {
-    $placeholder = SafeMarkup::format('<drupal-html-response-attachment-placeholder type="@type" token="@token"></drupal-html-response-attachment-placeholder>', [
-      '@type' => $type,
-      '@token' => $token,
-    ]);
-    $variables[$type]['#markup'] = $placeholder;
-    $variables[$type]['#attached']['html_response_attachment_placeholders'][$type] = $placeholder;
+  $variables['placeholder_token'] = Crypt::randomBytesBase64(55);
+  foreach ($types as $type => $placeholder_name) {
+    $placeholder = '<' . $placeholder_name . '-placeholder token="' . $variables['placeholder_token'] . '">';
+    $variables['#attached']['html_response_attachment_placeholders'][$type] = $placeholder;
   }
 }
 
@@ -1294,7 +1289,6 @@ function template_preprocess_html(&$variables) {
  */
 function template_preprocess_page(&$variables) {
   $language_interface = \Drupal::languageManager()->getCurrentLanguage();
-  $site_config = \Drupal::config('system.site');
 
   // Move some variables to the top level for themer convenience and template cleanliness.
   $variables['title'] = $variables['page']['#title'];
@@ -1308,9 +1302,6 @@ function template_preprocess_page(&$variables) {
   $variables['base_path']         = base_path();
   $variables['front_page']        = \Drupal::url('<front>');
   $variables['language']          = $language_interface;
-  $variables['logo']              = theme_get_setting('logo.url');
-  $variables['site_name']         = (theme_get_setting('features.name') ? $site_config->get('name') : '');
-  $variables['site_slogan']['#markup'] = (theme_get_setting('features.slogan') ? $site_config->get('slogan') : '');
 
   // An exception might be thrown.
   try {
@@ -1415,6 +1406,13 @@ function template_preprocess_maintenance_page(&$variables) {
 
   // @see system_page_attachments()
   $variables['#attached']['library'][] = 'system/maintenance';
+
+  // Maintenance page and install page need branding info in variables because
+  // there is no blocks.
+  $site_config = \Drupal::config('system.site');
+  $variables['logo'] = theme_get_setting('logo.url');
+  $variables['site_name'] = $site_config->get('name');
+  $variables['site_slogan'] = $site_config->get('slogan');
 }
 
 /**
@@ -1482,11 +1480,7 @@ function template_preprocess_field(&$variables, $hook) {
   // readers.
   $variables['label'] = $element['#title'];
 
-
-  // @todo Check for is_object() required due to pseudo field used in
-  // quickedit_test_entity_view_alter(). Remove this check after this is fixed
-  // in https://www.drupal.org/node/2550225.
-  $variables['multiple'] = is_object($element['#items']) ? $element['#items']->getFieldDefinition()->getFieldStorageDefinition()->isMultiple() : FALSE;
+  $variables['multiple'] = $element['#items']->getFieldDefinition()->getFieldStorageDefinition()->isMultiple();
 
   static $default_attributes;
   if (!isset($default_attributes)) {

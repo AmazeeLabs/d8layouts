@@ -122,7 +122,7 @@ function hook_user_cancel_methods_alter(&$methods) {
 function hook_user_format_name_alter(&$name, $account) {
   // Display the user's uid instead of name.
   if ($account->id()) {
-    $name = t('User !uid', array('!uid' => $account->id()));
+    $name = t('User @uid', array('@uid' => $account->id()));
   }
 }
 
@@ -136,7 +136,7 @@ function hook_user_login($account) {
   $config = \Drupal::config('system.date');
   // If the user has a NULL time zone, notify them to set a time zone.
   if (!$account->getTimezone() && $config->get('timezone.user.configurable') && $config->get('timezone.user.warn')) {
-    drupal_set_message(t('Configure your <a href="@user-edit">account time zone setting</a>.', array('@user-edit' => $account->url('edit-form', array('query' => \Drupal::destination()->getAsArray(), 'fragment' => 'edit-timezone')))));
+    drupal_set_message(t('Configure your <a href=":user-edit">account time zone setting</a>.', array(':user-edit' => $account->url('edit-form', array('query' => \Drupal::destination()->getAsArray(), 'fragment' => 'edit-timezone')))));
   }
 }
 

@@ -1,5 +1,5 @@
 id: d7_field_formatter_settings
-label: Drupal 7 field formatter configuration
+label: Field formatter configuration
 migration_tags:
   - Drupal 7
 source:
@@ -62,7 +62,10 @@ process:
     -
       plugin: skip_on_empty
       method: row
-  "options/settings": settings
+  "options/settings":
+    plugin: default_value
+    source: settings
+    default_value: []
   "options/third_party_settings": 'constants/third_party_settings'
 destination:
   plugin: component_entity_display

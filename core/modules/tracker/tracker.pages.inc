@@ -5,7 +5,6 @@
  * User page callbacks for tracker.module.
  */
 
-use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Cache\Cache;
 use Drupal\node\Entity\Node;
 
@@ -85,7 +84,7 @@ function tracker_page($account = NULL) {
       }
 
       $row = array(
-        'type' => SafeMarkup::checkPlain(node_get_type_label($node)),
+        'type' => node_get_type_label($node),
         'title' => array(
           'data' => array(
             '#type' => 'link',
@@ -107,8 +106,8 @@ function tracker_page($account = NULL) {
           'data-history-node-last-comment-timestamp' => $node->last_comment_timestamp,
         ),
         'last updated' => array(
-          'data' => t('!time ago', array(
-            '!time' => \Drupal::service('date.formatter')->formatTimeDiffSince($node->last_activity),
+          'data' => t('@time ago', array(
+            '@time' => \Drupal::service('date.formatter')->formatTimeDiffSince($node->last_activity),
           )),
         ),
       );

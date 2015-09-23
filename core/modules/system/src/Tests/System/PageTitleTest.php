@@ -23,7 +23,7 @@ class PageTitleTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = array('node', 'test_page_test', 'form_test');
+  public static $modules = ['node', 'test_page_test', 'form_test', 'block'];
 
   protected $contentUser;
   protected $savedTitle;
@@ -71,19 +71,15 @@ class PageTitleTest extends WebTestBase {
     $slogan = '<script type="text/javascript">alert("Slogan XSS!");</script>';
     $slogan_filtered = Xss::filterAdmin($slogan);
 
-    // Activate needed appearance settings.
-    $edit = array(
-      'toggle_name'           => TRUE,
-      'toggle_slogan'         => TRUE,
-    );
-    $this->drupalPostForm('admin/appearance/settings', $edit, t('Save configuration'));
-
     // Set title and slogan.
     $edit = array(
       'site_name'    => $title,
       'site_slogan'  => $slogan,
     );
     $this->drupalPostForm('admin/config/system/site-information', $edit, t('Save configuration'));
+
+    // Place branding block with site name and slogan into header region.
+    $this->drupalPlaceBlock('system_branding_block', ['region' => 'header']);
 
     // Load frontpage.
     $this->drupalGet('');
@@ -146,15 +142,6 @@ class PageTitleTest extends WebTestBase {
     $this->assertRaw(Html::escape('<span>Cached title</span>') . '</h1>');
     $this->drupalGet('test-page-cached-controller');
     $this->assertTitle('Cached title | Drupal');
-    $this->assertRaw(Html::escape('<span>Cached title</span>') . '</h1>');
-
-    // Ensure that titles are cacheable and are escaped normally if the
-    // controller escapes them use Html::escape().
-    $this->drupalGet('test-page-cached-controller-safe');
-    $this->assertTitle('<span>Cached title</span> | Drupal');
-    $this->assertRaw(Html::escape('<span>Cached title</span>') . '</h1>');
-    $this->drupalGet('test-page-cached-controller-safe');
-    $this->assertTitle('<span>Cached title</span> | Drupal');
     $this->assertRaw(Html::escape('<span>Cached title</span>') . '</h1>');
   }
 

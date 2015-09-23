@@ -588,13 +588,28 @@ class Schema extends DatabaseSchema {
   /**
    * Helper function: check if a constraint (PK, FK, UK) exists.
    *
-   * @param $table
+   * @param string $table
    *   The name of the table.
-   * @param $name
-   *   The name of the constraint (typically 'pkey' or '[constraint]_key').
+   * @param string $name
+   *   The name of the constraint (typically 'pkey' or '[constraint]__key').
+   *
+   * @return bool
+   *   TRUE if the constraint exists, FALSE otherwise.
    */
   public function constraintExists($table, $name) {
-    $constraint_name = $this->ensureIdentifiersLength($table, $name);
+    // ::ensureIdentifiersLength() expects three parameters, although not
+    // explicitly stated in its signature, thus we split our constraint name in
+    // a proper name and a suffix.
+    if ($name == 'pkey') {
+      $suffix = $name;
+      $name = '';
+    }
+    else {
+      $pos = strrpos($name, '__');
+      $suffix = substr($name, $pos + 2);
+      $name = substr($name, 0, $pos);
+    }
+    $constraint_name = $this->ensureIdentifiersLength($table, $name, $suffix);
     // Remove leading and trailing quotes because the index name is in a WHERE
     // clause and not used as an identifier.
     $constraint_name = str_replace('"', '', $constraint_name);
@@ -711,17 +726,23 @@ class Schema extends DatabaseSchema {
     // Usually, we do this via a simple typecast 'USING fieldname::type'. But
     // the typecast does not work for conversions to bytea.
     // @see http://www.postgresql.org/docs/current/static/datatype-binary.html
+    $table_information = $this->queryTableInformation($table);
+    $is_bytea = !empty($table_information->blob_fields[$field]);
     if ($spec['pgsql_type'] != 'bytea') {
-      $this->connection->query('ALTER TABLE {' . $table . '} ALTER "' . $field . '" TYPE ' . $field_def . ' USING "' . $field . '"::' . $field_def);
+      if ($is_bytea) {
+        $this->connection->query('ALTER TABLE {' . $table . '} ALTER "' . $field . '" TYPE ' . $field_def . ' USING convert_from("' . $field . '"' . ", 'UTF8')");
+      }
+      else {
+        $this->connection->query('ALTER TABLE {' . $table . '} ALTER "' . $field . '" TYPE ' . $field_def . ' USING "' . $field . '"::' . $field_def);
+      }
     }
     else {
       // Do not attempt to convert a field that is bytea already.
-      $table_information = $this->queryTableInformation($table);
-      if (!in_array($field, $table_information->blob_fields)) {
+      if (!$is_bytea) {
         // Convert to a bytea type by using the SQL replace() function to
         // convert any single backslashes in the field content to double
         // backslashes ('\' to '\\').
-        $this->connection->query('ALTER TABLE {' . $table . '} ALTER "' . $field . '" TYPE ' . $field_def . ' USING decode(replace("' . $field . '"' . ", '\\', '\\\\'), 'escape');");
+        $this->connection->query('ALTER TABLE {' . $table . '} ALTER "' . $field . '" TYPE ' . $field_def . ' USING decode(replace("' . $field . '"' . ", E'\\\\', E'\\\\\\\\'), 'escape');");
       }
     }
 

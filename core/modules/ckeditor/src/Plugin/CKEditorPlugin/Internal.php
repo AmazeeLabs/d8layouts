@@ -129,6 +129,9 @@ class Internal extends CKEditorPluginBase implements ContainerFactoryPluginInter
     $button = function($name, $direction = 'ltr') {
       // In the markup below, we mostly use the name (which may include spaces),
       // but in one spot we use it as a CSS class, so strip spaces.
+      // Note: this uses str_replace() instead of Html::cleanCssIdentifier()
+      // because we must provide these class names exactly how CKEditor expects
+      // them in its library, which cleanCssIdentifier() does not do.
       $class_name = str_replace(' ', '', $name);
       return [
         '#type' => 'inline_template',
@@ -325,10 +328,6 @@ class Internal extends CKEditorPluginBase implements ContainerFactoryPluginInter
    *
    * @return array
    *   An array containing the "format_tags" configuration.
-   *
-   * @see ckeditor_rebuild()
-   * @see ckeditor_filter_format_insert()
-   * @see ckeditor_filter_format_update()
    */
   protected function generateFormatTagsSetting(Editor $editor) {
     // When no text format is associated yet, assume no tag is allowed.
@@ -338,9 +337,35 @@ class Internal extends CKEditorPluginBase implements ContainerFactoryPluginInter
     }
 
     $format = $editor->getFilterFormat();
-    // The <p> tag is always allowed — HTML without <p> tags is nonsensical.
-    $default = 'p';
-    return \Drupal::state()->get('ckeditor_internal_format_tags:' . $format->id(), $default);
+    $cid = 'ckeditor_internal_format_tags:' . $format->id();
+
+    if ($cached = $this->cache->get($cid)) {
+      $format_tags = $cached->data;
+    }
+    else {
+      // The <p> tag is always allowed — HTML without <p> tags is nonsensical.
+      $format_tags = ['p'];
+
+      // Given the list of possible format tags, automatically determine whether
+      // the current text format allows this tag, and thus whether it should show
+      // up in the "Format" dropdown.
+      $possible_format_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre'];
+      foreach ($possible_format_tags as $tag) {
+        $input = '<' . $tag . '>TEST</' . $tag . '>';
+        $output = trim(check_markup($input, $editor->id()));
+        if ($input == $output) {
+          $format_tags[] = $tag;
+        }
+      }
+      $format_tags = implode(';', $format_tags);
+
+      // Cache the "format_tags" configuration. This cache item is infinitely
+      // valid; it only changes whenever the text format is changed, hence it's
+      // tagged with the text format's cache tag.
+      $this->cache->set($cid, $format_tags, Cache::PERMANENT, $format->getCacheTags());
+    }
+
+    return $format_tags;
   }
 
   /**

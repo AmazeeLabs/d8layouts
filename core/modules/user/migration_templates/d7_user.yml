@@ -1,5 +1,5 @@
 id: d7_user
-label: Drupal 7 user accounts
+label: User accounts
 migration_tags:
   - Drupal 7
 builder:
@@ -24,7 +24,14 @@ process:
     plugin: migration
     migration: d7_user_role
     source: roles
-  user_picture: picture
+  user_picture:
+    -
+      plugin: default_value
+      source: picture
+      default_value: null
+    -
+      plugin: migration
+      migration: d7_file
 destination:
   plugin: entity:user
 migration_dependencies:

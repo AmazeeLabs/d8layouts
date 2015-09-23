@@ -638,6 +638,20 @@ class FormBuilder implements FormBuilderInterface, FormValidatorInterface, FormS
   }
 
   /**
+   * #lazy_builder callback; renders a form action URL.
+   *
+   * @return array
+   *   A renderable array representing the form action.
+   */
+  public function renderPlaceholderFormAction() {
+    return [
+      '#type' => 'markup',
+      '#markup' => $this->buildFormAction(),
+      '#cache' => ['contexts' => ['url.path', 'url.query_args']],
+    ];
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function prepareForm($form_id, &$form, FormStateInterface &$form_state) {
@@ -647,7 +661,17 @@ class FormBuilder implements FormBuilderInterface, FormValidatorInterface, FormS
 
     // Only update the action if it is not already set.
     if (!isset($form['#action'])) {
-      $form['#action'] = $this->buildFormAction();
+      // Instead of setting an actual action URL, we set the placeholder, which
+      // will be replaced at the very last moment. This ensures forms with
+      // dynamically generated action URLs don't have poor cacheability.
+      // Use the proper API to generate the placeholder, when we have one. See
+      // https://www.drupal.org/node/2562341.
+      $placeholder = 'form_action_' . hash('crc32b', __METHOD__);
+
+      $form['#attached']['placeholders'][$placeholder] = [
+        '#lazy_builder' => ['form_builder:renderPlaceholderFormAction', []],
+      ];
+      $form['#action'] = $placeholder;
     }
 
     // Fix the form method, if it is 'get' in $form_state, but not in $form.
@@ -688,18 +712,24 @@ class FormBuilder implements FormBuilderInterface, FormValidatorInterface, FormS
     if ($form_state->isProgrammed() || (isset($form['#token']) && $form['#token'] === FALSE)) {
       unset($form['#token']);
     }
-    elseif ($user && $user->isAuthenticated()) {
-      // Generate a public token based on the form id.
-      $form['#token'] = $form_id;
-      $form['form_token'] = array(
-        '#id' => Html::getUniqueId('edit-' . $form_id . '-form-token'),
-        '#type' => 'token',
-        '#default_value' => $this->csrfToken->get($form['#token']),
-        // Form processing and validation requires this value, so ensure the
-        // submitted form value appears literally, regardless of custom #tree
-        // and #parents being set elsewhere.
-        '#parents' => array('form_token'),
-      );
+    else {
+      $form['#cache']['contexts'][] = 'user.roles:authenticated';
+      if ($user && $user->isAuthenticated()) {
+        // Generate a public token based on the form id.
+        $form['#token'] = $form_id;
+        $form['form_token'] = array(
+          '#id' => Html::getUniqueId('edit-' . $form_id . '-form-token'),
+          '#type' => 'token',
+          '#default_value' => $this->csrfToken->get($form['#token']),
+          // Form processing and validation requires this value, so ensure the
+          // submitted form value appears literally, regardless of custom #tree
+          // and #parents being set elsewhere.
+          '#parents' => array('form_token'),
+          '#cache' => [
+            'max-age' => 0,
+          ],
+        );
+      }
     }
 
     if (isset($form_id)) {

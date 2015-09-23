@@ -249,7 +249,7 @@ class FileItem extends EntityReferenceItem {
    */
   public static function validateMaxFilesize($element, FormStateInterface $form_state) {
     if (!empty($element['#value']) && !is_numeric(Bytes::toInt($element['#value']))) {
-      $form_state->setError($element, t('The "!name" option must contain a valid value. You may either leave the text field empty or enter a string like "512" (bytes), "80 KB" (kilobytes) or "50 MB" (megabytes).', array('!name' => t($element['title']))));
+      $form_state->setError($element, t('The "@name" option must contain a valid value. You may either leave the text field empty or enter a string like "512" (bytes), "80 KB" (kilobytes) or "50 MB" (megabytes).', array('@name' => $element['title'])));
     }
   }
 
@@ -309,8 +309,12 @@ class FileItem extends EntityReferenceItem {
     $random = new Random();
     $settings = $field_definition->getSettings();
 
+    // Prepare destination.
+    $dirname = $settings['uri_scheme'] . '://' . $settings['file_directory'];
+    file_prepare_directory($dirname, FILE_CREATE_DIRECTORY);
+
     // Generate a file entity.
-    $destination = $settings['uri_scheme'] . '://' . $settings['file_directory'] . $random->name(10, TRUE) . '.txt';
+    $destination = $dirname . '/' . $random->name(10, TRUE) . '.txt';
     $data = $random->paragraphs(3);
     $file = file_save_data($data, $destination, FILE_EXISTS_ERROR);
     $values = array(

@@ -93,15 +93,15 @@ class FilterFormatListBuilder extends DraggableListBuilder {
   public function buildRow(EntityInterface $entity) {
     // Check whether this is the fallback text format. This format is available
     // to all roles and cannot be disabled via the admin interface.
-    $row['label'] = $this->getLabel($entity);
+    $row['label'] = $entity->label();
     $row['roles'] = [];
     if ($entity->isFallbackFormat()) {
       $fallback_choice = $this->configFactory->get('filter.settings')->get('always_show_fallback_choice');
       if ($fallback_choice) {
-        $roles_markup = $this->t('All roles may use this format');
+        $row['roles']['#markup'] = $this->t('All roles may use this format');
       }
       else {
-        $roles_markup = $this->t('This format is shown when no other formats are available');
+        $row['roles']['#markup'] = $this->t('This format is shown when no other formats are available');
       }
       // Emphasize the fallback role text since it is important to understand
       // how it works which configuring filter formats. Additionally, it is not
@@ -110,11 +110,13 @@ class FilterFormatListBuilder extends DraggableListBuilder {
       $row['roles']['#suffix'] = '</em>';
     }
     else {
-      $roles = array_map('\Drupal\Component\Utility\SafeMarkup::checkPlain', filter_get_roles_by_format($entity));
-      $roles_markup = $roles ? implode(', ', $roles) : $this->t('No roles may use this format');
+      $row['roles'] = [
+        '#theme' => 'item_list',
+        '#items' => filter_get_roles_by_format($entity),
+        '#empty' => $this->t('No roles may use this format'),
+        '#context' => ['list_style' => 'comma-list'],
+      ];
     }
-
-    $row['roles']['#markup'] = $roles_markup;
 
     return $row + parent::buildRow($entity);
   }

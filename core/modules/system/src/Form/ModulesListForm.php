@@ -7,7 +7,6 @@
 
 namespace Drupal\system\Form;
 
-use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Config\PreExistingConfigException;
 use Drupal\Core\Config\UnmetDependenciesException;
@@ -169,7 +168,7 @@ class ModulesListForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     require_once DRUPAL_ROOT . '/core/includes/install.inc';
-    $distribution = SafeMarkup::checkPlain(drupal_install_profile_distribution_name());
+    $distribution = drupal_install_profile_distribution_name();
 
     // Include system.admin.inc so we can use the sort callbacks.
     $this->moduleHandler->loadInclude('system', 'inc', 'system.admin');
@@ -354,8 +353,8 @@ class ModulesListForm extends FormBase {
     // Check the core compatibility.
     if ($module->info['core'] != \Drupal::CORE_COMPATIBILITY) {
       $compatible = FALSE;
-      $reasons[] = $this->t('This version is not compatible with Drupal !core_version and should be replaced.', array(
-        '!core_version' => \Drupal::CORE_COMPATIBILITY,
+      $reasons[] = $this->t('This version is not compatible with Drupal @core_version and should be replaced.', array(
+        '@core_version' => \Drupal::CORE_COMPATIBILITY,
       ));
     }
 
@@ -363,9 +362,9 @@ class ModulesListForm extends FormBase {
     if (version_compare(phpversion(), $module->info['php']) < 0) {
       $compatible = FALSE;
       $required = $module->info['php'] . (substr_count($module->info['php'], '.') < 2 ? '.*' : '');
-      $reasons[] = $this->t('This module requires PHP version @php_required and is incompatible with PHP version !php_version.', array(
+      $reasons[] = $this->t('This module requires PHP version @php_required and is incompatible with PHP version @php_version.', array(
         '@php_required' => $required,
-        '!php_version' => phpversion(),
+        '@php_version' => phpversion(),
       ));
     }
 
